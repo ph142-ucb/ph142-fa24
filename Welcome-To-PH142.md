@@ -21,7 +21,7 @@ We hope that by the end of the semester, you come out with a fresh, new (hopeful
 towards probability & statistics, and that you come to appreciate its importance in real-life application 
 towards public health. As always, if you ever need support or help (or just need someone to talk to about 
 the class), you can take advantage of any of the following resources:
-- Piazza
+- Ed
 - Office Hours
 - Emailing ph142@berkeley.edu
 
