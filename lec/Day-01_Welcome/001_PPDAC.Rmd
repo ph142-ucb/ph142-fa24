@@ -1,8 +1,9 @@
 ---
 title: "PPDAC: The statistical method"
-author: "Corinne Riddell (instructor Alan Hubbard)"
-date: "August 23, 2023"
-output: html_document
+author: "Instructors: Alan Hubbard and Tomer Altman"
+date: "August 28, 2024"
+#output: slidy_presentation
+output: pdf_document
 ---
 
 ### Problem
@@ -12,7 +13,7 @@ A clear statement of what we are trying to achieve.
 ### Three main problem types
 
 - **Descriptive**: learning about some particular attribute of a population
-- **Causative/Etiologic**: do changes in an explantory variable cause changes in a response variable?
+- **Causative/Etiologic**: do changes in an explantory variable **cause** changes in a response variable?
 - **Predictive**: how can we best predict the value of the response variable for an individual?
 
 ### Plan
