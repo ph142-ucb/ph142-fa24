@@ -1,0 +1,8 @@
+Subject,Sex,Age,PI,Bias
+Abel,m,6,-1,L
+Anna,f,5,-0.95,L
+Aragorn,m,6,-1,L
+Barbossa,m,1,-0.25,A
+Bea,f,4,1,R
+Beatrice,f,1,0.56,R
+Berta,f,1,0.13,A
