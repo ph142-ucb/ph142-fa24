@@ -2,14 +2,16 @@
 title: "Exploring relationships between two variables"
 author: "Corinne Riddell (Instructors: Alan Hubbard and Tomer Altman)"
 date: "September 9, 2024"
-output: pdf_document
-#output: slidy_presentation
+#output: pdf_document
+output: slidy_presentation
 editor_options: 
   chunk_output_type: inline
 ---
 
 ### Administrivia
 
+- Please watch the [recording of Lecture 4B]( https://youtu.be/HN7JF94gWtQ)
+- Please *only* use the `ph142fa24@berkeley.edu` email address for contacting the instructors
 - Technical issues from Friday's lecture
   - GSIs will go over how to specify the correct working directory in R Studio
 - Lectures and R Studio
