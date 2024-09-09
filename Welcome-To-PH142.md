@@ -18,7 +18,7 @@ etc), which will show up in your Datahub. It will be your responsibility to get 
 showing up in your server, you most likely didn't click on one of links.
 
 We hope that by the end of the semester, you come out with a fresh, new (hopefully positive) perspective 
-towards probability & statistics, and that you come to appreciate its importance in real-life application 
+towards probability and statistics, and that you come to appreciate its importance in real-life application 
 towards public health. As always, if you ever need support or help (or just need someone to talk to about 
 the class), you can take advantage of any of the following resources:
 - Ed
