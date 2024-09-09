@@ -41,6 +41,58 @@ editor_options:
 * [Visual Distribution of different correlation coefficients](https://learningstatisticswithr.com/lsr-0.6.pdf) (See section 5.7.4)
 * [Interpreting Correlation Coefficients](https://learningstatisticswithr.com/lsr-0.6.pdf) (See section 5.7.5) 
 
+### Why visualize bivariate relations?
+
+Why is it important to examine bivariate relations (i.e., the relationship between two variables)? We learned last week about visualizing the distribution of individual variables using bar plots and histograms. Isn't that enough?
+
+I will load a mystery data set that we want to examine. 
+```{r bivariate-data, echo=F}
+install.packages('datasauRus')
+library(ggplot2)
+library(datasauRus) # on CRAN
+data_points <- datasaurus_dozen[datasaurus_dozen$dataset == "dino", 2:3]
+#ggplot(data_points, pch = 16, cex = 2)
+```
+
+### Why visualize bivariate relations? X-variable
+
+First, we look at the histogram of the `x` variable. What does the data tell you?
+
+```{r bivariate-data-x}
+ggplot(data = data_points, aes(x = x)) + 
+  geom_histogram(col = "white") +
+  labs(x = "", 
+       y = "Number of points") +
+  theme_minimal(base_size = 15)
+```
+
+
+### Why visualize bivariate relations? Y-variable
+
+Next, we look at the histogram of the `y` variable. See anything interesting?
+
+```{r bivariate-data-y}
+ggplot(data = data_points, aes(x = y)) + 
+  geom_histogram(col = "white") +
+  labs(x = "", 
+       y = "Number of points") +
+  theme_minimal(base_size = 15)
+```
+
+
+### Why visualize bivariate relations? Scatter-Plot
+
+Now, let's plot the x and y variables together in a scatter-plot. See any pattern?
+
+```{r bivariate-data-scatterplot}
+ggplot(data_points, aes(x = x, y = y)) + 
+  geom_point() +
+  theme_minimal(base_size = 15) +
+  labs(x = "", 
+       y = "",
+       title = "Mystery Data")
+```
+
 ### Explanatory (X) and response (Y) variables 
 
 **Bi-directional statements:** 
@@ -93,6 +145,7 @@ editor_options:
 ```{r, echo=F, fig.align='center', out.width="75%"}
 knitr::include_graphics("./images/relationship-properties.JPG")
 ```
+
 
 
 ### Bi-directional relationships ex: systolic and diastolic BP
@@ -291,13 +344,22 @@ weight_scatter
 ### Analysis: Colour the points by gender
 ```{r scatter-energy-data-col, out.width="60%"}
 #Fill in during class
+weight_scatter <- ggplot(weight_data, aes(x=mass, y=rate)) +
+  geom_point(aes(col = gender)) +
+  theme_minimal(base_size = 15)
 
+weight_scatter
 ```
 
 ### Analysis: Create separate plots for men and women
 ```{r facetted-scatter-energy-data, out.width="60%"}
 #Fill in during class
+weight_scatter <- ggplot(weight_data, aes(x=mass, y=rate)) +
+  geom_point() +
+  theme_minimal(base_size = 15) +
+  facet_wrap(~gender)
 
+weight_scatter
 ```
 
 ### Let's test our knowledge!
