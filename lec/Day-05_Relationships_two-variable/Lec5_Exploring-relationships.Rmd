@@ -2,8 +2,8 @@
 title: "Exploring relationships between two variables"
 author: "Corinne Riddell (Instructors: Alan Hubbard and Tomer Altman)"
 date: "September 9, 2024"
-#output: pdf_document
-output: slidy_presentation
+output: pdf_document
+#output: slidy_presentation
 editor_options: 
   chunk_output_type: inline
 ---
@@ -636,7 +636,7 @@ ggplot(breakup_data, aes(x = time_since_breakup, y = distress_score)) +
 
 ### Recap: What functions did we use?
 
-- `geom_scatter()`, `aes(col = gender)` to color points by levels of `gender`
+- `geom_point()`, `aes(col = gender)` to color points by levels of `gender`
 - `summarize()` to calculate correlation using `cor(var1, var2)`
 
 ### Important concepts
