@@ -8,7 +8,7 @@ from os import listdir
 from os.path import isfile, join
 
 # Change these for each assignment
-ASSIGNMENT_RMD_PATH = "lab05.Rmd"
+ASSIGNMENT_RMD_PATH = "lab06.Rmd"
 COURSE_ID = 833518
 PROGRAMMING_ASSIGNMENT_ID = 4806634
 
