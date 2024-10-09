@@ -4,6 +4,7 @@ author: "Corinne Riddell (Instructor: Alan Hubbard and Tomer Altman)"
 date: "October 9, 2024"
 output: slidy_presentation
 #output: pdf_document
+#output: beamer_presentation
 ---
 
 ### Learning objectives for today
@@ -87,6 +88,7 @@ The above formula is the probability distribution function for a Poisson distrib
 For example, $$P(X=2)={\frac{e^{-\mu} \mu^2}{2!} }$$ will calculate the 
 probability of observing two events when $X$ follows a Poisson distribution with 
 an average of $\mu$, or $X \sim Pois(\mu)$
+
 
 - How would you calculate $P(X < 3)$?
 
