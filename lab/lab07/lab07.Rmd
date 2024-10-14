@@ -351,12 +351,3 @@ cd; cd ph142-fa24/lab/lab07; python3 turn_in.py
 5. If the submission fails, try to diagnose the issue using the error messages--if you have problems, post on Ed 
 
 The late policy will be strictly enforced, **no matter the reason**, including submission issues, so be sure to submit early enough to have time to diagnose issues if problems arise.
-
-## Submission
-
-Make sure you have run all cells in your notebook in order before running the cell below, so that all images/graphs appear in the output. The cell below will generate a zip file for you to submit. **Please save before exporting!**
-
-```{r}
-# Save your notebook first, then run this cell to export your submission.
-ottr::export("lab06_current.Rmd", pdf = TRUE)
-```
