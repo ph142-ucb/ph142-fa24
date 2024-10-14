@@ -1,5 +1,5 @@
 ---
-title: 'Lab 6: Normal, Binomial, and Poisson Distribution'
+title: 'Lab 7: Normal, Binomial, and Poisson Distribution'
 author: "Your name and Student ID"
 date: "Today's Date"
 output: pdf_document
