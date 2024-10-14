@@ -3,9 +3,9 @@ title: 'Lecture 19: Confidence Intervals for a Mean with a Known Standard Deviat
 subtitle: 'Chapter 14 in book'
 author: "Corinne Riddell (Instructors Alan Hubbard and Tomer Altman)"
 date: "October 14, 2024"
-output:
-  pdf_document
-#output: slidy_presentation  
+#output:
+#  pdf_document
+output: slidy_presentation  
 editor_options: 
   chunk_output_type: console
 ---
@@ -64,7 +64,7 @@ multiple stages. For this question, we will pretend the sample is an SRS.
 This is an okay assumption to make about measurements like height. If you had 
 access to the sample, we could make a histogram and Q-Q plot of the data and see if the sample
 appears to be roughly Normally distributed and use that as evidence in support of
-this assumption.  In addition, the sample size is probably quite large and thus one can invoke the CLT.
+this assumption.  In addition, the sample size is large and thus one can invoke the CLT.
 * Assumption 3: We are not provided the population standard deviation $\sigma$, but perhaps we
 could do some research and find that $\sigma = 10$ cm can be assumed as the population
 standard deviation. In this class, if you are asked to assume a standard deviation, it will be provided to you by the question.
@@ -154,15 +154,15 @@ or decrease?
 
 ### Confidence intervals for the mean $\mu$
 
-This table summarizes the number (which we refer to as the **critical value $z*$ **
+This table summarizes the number (which we refer to as the **critical value $z^*$ **
 to multiply by the $SE$ for different confidence levels:
 
 | Confidence level C | 90%   | 95%                 | 99%   |
 |-------------------:|:-----:|:-------------------:|:-----:|
-| Critical value $z*$  | 1.645 | 1.960 ($\approx 2$) | 2.576 |
+| Critical value $z^*$  | 1.645 | 1.960 ($\approx 2$) | 2.576 |
 
 - These numbers correspond to the value on the x-axis corresponding to having 90%,
-95%, or 99% of the area under the Normal density curve between $-z$ and $z$. For example,
+95%, or 99% of the area under the Normal density curve between $-z^*$ and $z^*$. For example,
 the middle 90% of the area under a Normal density curve lies between -1.645 and 
 +1.645.
 - Thus, a 90% confidence interval is of the form:
@@ -247,7 +247,7 @@ left-skewed, but since there is not much data, it may actually follow a Normal d
 
 ### Calculating the estimated mean and its confidence interval
 
-Option 1: Perform calculations by hand (approximating the critical value $z* \approx 2$)
+Option 1: Perform calculations by hand (approximating the critical value $z^* \approx 2$)
 
 ```{r, echo=F, fig.align='center', out.width="80%"}
 knitr::include_graphics("./images/calcs.JPG")
