@@ -150,7 +150,7 @@ Now, let's make a plot as if we sampled for 100 CIs and see how many contain the
 **Plot sample size 10** 
 
 ```{r}
-alameda_pop <- read.csv("data/L07_Alameda.csv")
+alameda_pop <- read.csv("data/HW07_Alameda.csv")
 known_pop_sd <- 2.786314
 
 
@@ -195,7 +195,7 @@ Once this is done, plot a sample for 100 CIs. Again, try to understand what is g
 **Plot sample size 50** 
 
 ```{r}
-alameda_pop <- read.csv("data/L07_Alameda.csv")
+alameda_pop <- read.csv("data/HW07_Alameda.csv")
 known_pop_sd <- 2.786314
 
 
@@ -238,7 +238,7 @@ _Type your answer here, replacing this text._
 **Bonus! Run this code to view what happens to the confidence intervals if $n=500$ and if you want to simulate on your own samples of different sizes:**
 
 ```{r}
-alameda_pop <- read.csv("data/L07_Alameda.csv")
+alameda_pop <- read.csv("data/HW07_Alameda.csv")
 known_pop_sd <- 2.786314
 
 
