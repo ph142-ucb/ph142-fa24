@@ -3,8 +3,9 @@ title: "Lecture 21-22: Inference in Practice"
 author: "Tomer Altman and Alan Hubbard"
 date: "October 18, 2024"
 output: pdf_document
+#output: slidy_presentation  
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ### Learning objectives
@@ -122,12 +123,12 @@ size would not overcome this measurement error.
 
 ### How hypothesis tests behave
 
-- The p-value of a test is dependent on whether $H_a$ is one-sided or two-sided.
+- The p-value of a test is dependent on whether $H_a$ is one-sided or two-sided
 - The p-value for a two-sided test is double the p-value for the one-sided test
 of the same $H_0$
 - It is important to determine whether you are conducting a one- or two-sided
 test before you see the data, and if one-sided, whether you are testing if 
-$\mu < \mu_o$ or $\mu > \mu_0$. 
+$\mu < \mu_0$ or $\mu > \mu_0$
 - That is you should never use $\bar{x}$ as a 
 basis for determining the direction of the alternative hypothesis. Why do you think 
 that is?
@@ -141,25 +142,22 @@ the standard error of the sampling mean)
 
 $$z = \frac{\bar{x}-\mu_0}{\sigma/\sqrt{n}}$$
 
-- We can call $\bar{x}-\mu_0$ the "magnitude of the observed effect" since it is our
-measure of how much the population average we're looking at differs from some 
-null hypothesized mean. 
+- We call $\bar{x}-\mu_0$ the "magnitude of the observed effect" since it is our
+measure of how much the population average that we're looking at differs from some 
+null hypothesized mean
 
-- We can also call $\sigma/\sqrt{n}$ the "size of chance variation" because it 
+- We also call $\sigma/\sqrt{n}$ the "size of chance variation" because it 
 quantifies how much "chance" variations (only due to randomness) we expect from
-sample to sample.
+sample to sample
 
 - Then: 
 
 $$\frac{\text{magnitude of observed effect}}{\text{size of chance variation}}=\frac{signal}{noise}$$
 
 - The "signal to noise ratio" is something you might have heard mentioned in 
-articles you read online and this is what that means. 
+articles you read online and this is what that means
 
-- Statistical significance depends on:
-    - The size of the observed effect ($\bar{x}-\mu$)
-    - The variability of individuals in the population ($\sigma$)
-    - The sample size ($n$)
+
 
 ### How hypothesis tests behave
 
@@ -167,19 +165,19 @@ articles you read online and this is what that means.
     - The size of the observed effect ($\bar{x}-\mu_0$)
     - The variability of individuals in the population ($\sigma$)
     - The sample size ($n$)
-- If you obtain a small p-value it is not necessarily because the effect size is large.
+- If you obtain a small p-value it is not necessarily because the effect size is large
 - Very tiny effects can be deemed statistically significant when you have enough
 data. This is a big problem in the age of big data, because you're almost 
 guaranteed to obtain statistically significant results, no matter the effect size.
 - On the other hand, if your sample size is too small, you might not obtain statistical
-significance even if your effect size is large. 
+significance even if your effect size is large
 - This means: **An absence of evidence is not evidence of absence**. Said another way: Failing to reject the null hypothesis does not imply that the null hypothesis is true.
     
 ### How hypothesis tests behave
 
-- Statistical significance is different from clinical/practical significance. 
+- Statistical significance is different from clinical/practical significance
 - A statistically significant result might not be large enough to be important in 
-context of the question.
+context of the question
 
 ### P-values 
 
@@ -187,55 +185,55 @@ context of the question.
 - Read this Vox article about a Cornell food researcher how engaged in p-hacking: https://www.vox.com/science-and-health/2018/9/19/17879102/brian-wansink-cornell-food-brand-lab-retractions-jama
 - Read this two-page ASA brief on statistical significance and p-values: https://www.amstat.org/asa/files/pdfs/P-ValueStatement.pdf
 - We don't have time to discuss these today, but the material contained in these
-sources is testable!
+sources is fair game for quizzes and tests!
 
 ### Selecting an appropriate sample size 
 
-How big does the sample size need to be?
+- How big does the sample size need to be?
 
-Suppose you want your margin of error to equal $m$. What sample size do you need
+- Suppose you want your margin of error to equal $m$. What sample size do you need
 to obtain a margin of error of $m$? 
 
-You can rearrange the formula for the margin of error (moe) to solve for $n$:
+- You can rearrange the formula for the margin of error (moe) to solve for $n$:
 
 $$moe=\frac{z^*\sigma}{\sqrt{n}}$$
 $$n=\Big(\frac{z^*\sigma}{moe}\Big)^2$$
 
 ### Example of calculation sample size
 
-Body temperature has a known $\sigma=0.6$ degrees F. We want to estimate the mean
+Body temperature has a known standard deviation: $\sigma=0.6 ^{\circ}F$. We want to estimate the mean
 body temperature $\mu$ for healthy adults within $\pm0.05$ F with 95% confidence. 
 How many healthy adults must we measure?
 
 $$n=\Big(\frac{z^*\sigma}{moe}\Big)^2$$
 $$n=\Big(\frac{1.96\times 0.6}{0.05}\Big)^2 = 553.2$$
 
-* We must recruit 554 healthy adults for this study.
+* We must recruit 554 healthy adults for this study
 * Note that we always round up when calculating sample size, because if we rounded
-to the nearest whole digit (553) then the margin or error would be smaller than 
-$\pm{5}$.
+to the nearest whole digit (553) then the margin of error would be smaller than 
+$\pm{0.05}$
 
 ### Example of calculation sample size
 
 * Be careful! Rather than giving you the required margin of error, the question
-may give you the required **width** of the confidence interval. 
-* E.g., the previous question could have said:  We want to estimate a 95%
-confidence interval for the mean that has a width of 0.1 units. How many healthy adults must we measure?
+may give you the required **width** of the confidence interval
+* E.g., the previous question could have said:  "We want to estimate a 95%
+confidence interval for the mean that has a width of 0.1 units. How many healthy adults must we measure?"
 * The width of the confidence interval is $2\times{moe}$, so here $moe=0.05$, 
-just like in the previous question.
+just like in the previous question
 
 ### Sample size when conducting a hypothesis test
 
 To think about sample size for a z-test, three things matter:
 
 - **Significance level:** How much protection do we want against saying there is
-"evidence against $H_0$ in favor of $H_A$" when there really is no effect
+"evidence against $H_0$ in favor of $H_a$" when there really is no effect
 in the population? The significance level we choose fixes this conditional 
-probability to a fixed level, often 5%: $P(\text{Reject } H_0|H_0 \text{ is true}])= 0.05$
+probability to a fixed level, often 5%: $P(\text{Reject } H_0|H_0 \text{ is true})= 0.05$
 - **Effect size:** How large of an effect in the population is important in practice?
 - **Power:** How confident do we want that our study will detect an effect
-of the size we think is important? I.e., what is the probability of rejecting
-$H_0$ when the alternative hypothesis is true? That is, what is $P(\text{Reject }H_0|H_A \text{ is true})$?
+of a size that we think is important? I.e., what is the probability of rejecting
+$H_0$ when the alternative hypothesis is true? That is, what is $P(\text{Reject }H_0|H_a \text{ is true})$?
 
 ### Example of calculating power
 
@@ -244,35 +242,35 @@ $H_0$ when the alternative hypothesis is true? That is, what is $P(\text{Reject 
 * $H_a: \mu > 0$ 
 * Set $\alpha = 0.05$. 
 * Additional condition: You need to be 90% confident that the test will reject
-$H_0$ when the true underlying mean equals $\mu=0.8$. That is, you want 90% 
-**power** when $\mu=0.8$.
+$H_0$ when the true underlying mean equals $\mu_a=0.8$. That is, you want 90% 
+**power** when $\mu_a=0.8$.
 * What sample size will give you 90% power?
 
 ### Example of calculating power
 
-Begin by assuming $n=10$ and calculate the minimum z-value required to reject $H_0$:
+Begin by assuming $n=10$ and calculate the minimum quantile required to reject $H_0$:
 
 ```{r}
 qnorm(p = 0.05, mean = 0, sd = 1/sqrt(10), lower.tail = F)
 ```
 
-So for any z-test with this value or higher, you will reject $H_0$ in favor of $H_a$.
+So for any quantile with this value or higher, you will reject $H_0$ in favor of $H_a$.
 
-Now suppose that $\mu=0.8$ is true. The test will reject $H_0$ what 
+Now suppose that $\mu_a=0.8$ is true. The test will reject $H_0$ what 
 percent of the time when $H_a$ is true? To calculate this probability, we take 
 the value from the previous calculation and calculate the *probability* above 
-its value under $H_A$:
+its value under $H_a$:
 
 ```{r}
 pnorm(q = 0.5201484, mean = 0.8, 1/sqrt(10), lower.tail = F)
 ```
 
-Thus, you have a 82% chance of obtaining evidence in favor of $H_A$ when $\mu=0.8$
+Thus, you have a 81.2% chance of obtaining evidence in favor of $H_a$ when $\mu=0.8$
 if $n=10$. To obtain power of 90%, you will need to increase the sample size.
 
 ### Example of calculating power, illustrated
 
-```{r, echo= F, fig.align='center', out.width="80%"}
+```{r, echo= F, fig.align='center', out.width="50%"}
 library(ggplot2)
 ggplot(data = data.frame(x = c(-1.3, 2)), aes(x)) + 
     geom_area(stat = "function", fun = dnorm, args = list(mean = 0, sd = 1/sqrt(10)), 
@@ -284,16 +282,16 @@ ggplot(data = data.frame(x = c(-1.3, 2)), aes(x)) +
   geom_area(stat = "function", fun = dnorm, args = list(mean = 0.8, sd = 1/sqrt(10)), 
             fill = "blue", xlim = c(0.5201484, 2.0), alpha = 0.5) +
   stat_function(fun = dnorm, n = 101, args = list(mean = 0.8, sd = 1/sqrt(10))) +
-  geom_text(aes(x = 0, y = 1.2), label = "H0", check_overlap = T) +
-  geom_text(aes(x = 0.8, y = 1.2), label = "Ha", check_overlap = T)
+  annotate('text', x = 0, y = 1.2, label = "Ho", check_overlap = T) +
+  annotate('text', x = 0.8, y = 1.2, label = "Ha", check_overlap = T)
 
 ```
 
 * There is 5% of the area under $H_0$ that is shaded here in purple. This is the chance of rejecting the null hypothesis even when it is true. We found that x = 0.5201484 denotes the value
-where an $\bar{x}>=0.5201484$ would provide evidence against $H_0$ at 
-$\alpha = 0.05$
-* Then, we sketch the distribution of the alternative if $\mu=0.8$ and we calculate
-the probability of rejecting $H_0$ when $\mu=0.8$ is true.
+where an $\bar{x}\geq0.5201484$ would provide evidence against $H_0$ at 
+$\alpha = 0.05$ .
+* Then, we sketch the distribution of the alternative if $\mu_a=0.8$ and we calculate
+the probability of rejecting $H_0$ when $\mu_a=0.8$ is true
 
 ### Power
 
@@ -313,7 +311,7 @@ pnorm(q = z, mean = 0.8, sd = 1/sqrt(n), lower.tail = F)
 
 ### What affects the sample size required for a hypothesis test?
 
-- The difference between the null and true values being the same, smaller p-values occure with larger $n$.
+- The difference between the null and true values being the same, smaller p-values occur with larger $n$
 - Higher power requires a larger $n$
 - For a given $\alpha$ and power, two-sided alternatives require a larger $n$ than one-sided tests
 - Aiming to detect a smaller difference between $\bar{x}$ and $\mu$ requires
@@ -322,10 +320,10 @@ a larger $n$
 ### Power, Type I error, and Type II error in hypothesis tests
 
 - The significance level $\alpha$ is the chance of making a wrong decision  when
-the null hypothesis is true. This is known as a **type I error**
+the null hypothesis is true. This is known as a **Type I error**.
 - The power is the chance of making the right decision when the alternative is true.
-    - Thus, its complement, 1-power, is the chance of making a wrong decision 
-    when the alternative hypothesis is true. This is known as a **type II error.**
+    - Thus, its complement, $1-\text{Power}$, is the chance of making a wrong decision 
+    when the alternative hypothesis is true. This is known as a **Type II error.**
     - We let $\beta$ denote the chance of a Type II error. $\text{Power}=1-\beta$
 
 ### Power, Type I error, and Type II error in hypothesis tests
