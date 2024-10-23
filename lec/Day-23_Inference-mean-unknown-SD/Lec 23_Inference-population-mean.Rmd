@@ -1,0 +1,360 @@
+---
+title: "Lecture 23: Hypothesis Tests for a Mean with a Unknown Standard Deviation"
+subtitle: "Chapter 17"
+author: "Tomer Altman and Alan Hubbard"
+date: "October 23, 2024"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+### Recap
+
+- For the last few lectures, for instructions purposes, we have assumed that the population standard 
+deviation ($\sigma$) was known.
+- We conducted the z-test and created CIs using this known $\sigma$
+- Today, we generalize the to the more practical situation where 
+$\sigma$ is unknown and needs to be estimated by $s$, the sample standard deviation
+
+### Reduced conditions for inference about a mean
+
+- Data is a SRS form a much larger population (really important)
+- Observations follow a Normal distribution (leeway thanks to the CLT if sample size large enough)
+
+### Estimating the standard error based on the sample
+
+- Previously, we learned that the standard error of the sampling distribution is
+equal to $\sigma/\sqrt{n}$ and used this in our calculations
+- When we don't know $\sigma$ we can use the sample standard deviation, $s$, instead to estimate the standard error by 
+
+$$s/\sqrt{n}$$
+
+### $s$ vs. $s/\sqrt{n}$
+
+- Remember, $s$ is our estimate for the population standard deviation. It estimates
+the variation between *individuals*.
+
+- In contrast, $s/\sqrt{n}$ is our estimate for the standard error of the mean,
+$\bar{x}$. $s/\sqrt{n}$ estimates how much sample *means* vary if we were to take
+many multiple samples
+
+### Recall the z-test!
+
+$$z = \frac{\bar{x}-\mu}{\sigma/\sqrt{n}}$$\newpage
+
+### Meet the t-test!
+
+$$t = \frac{\bar{x}-\mu}{s/\sqrt{n}}$$
+
+- What is the difference between $z$ and $t$?
+- The t-test statistic is more variable, in samll sample sizes, than the z-test statistic because we have to 
+estimate $\sigma$ using $s$. Because $s$ is a statistic, it varies across samples 
+(whereas $\sigma$ is a population parameter, which implies it is a constant).
+- This substitution makes the t-test, in small samples, not follow Normal(0, 1) distribution,
+*even if the original distribution is normal*. 
+- Its distribution is *more* variable than the standard Normal. Thus, for hypothesis testing and confidence intervals, when sample size is relatively small (say $<40$) we need a distribution that is like the standard Normal but a little bit wider (i.e., more
+area in the tails of the distribution).
+
+### Introducing the t distribution
+
+- The t-distribution is like the standard Normal distribution, but wider.
+- Its width depends on $n$, the sample size. This is because as $n$ increases,
+our estimate $s$ gets better and better, and approaches $\sigma$. Thus, as $n$
+increases the t-distribution approaches a Normal(0, 1) distribution.
+
+```{r, echo= F, fig.align='center', out.width="80%"}
+library(ggplot2)
+ggplot(data = data.frame(x = c(-3, 3)), aes(x)) +
+  stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1), aes(col = "N(0,1)")) +
+  theme_minimal(base_size = 15) +
+  stat_function(fun = dt, n = 101, args = list(df = 4), aes(col = "t(n=5, df=4)")) +
+  stat_function(fun = dt, n = 101, args = list(df = 9), aes(col = "t(n=10, df=9)")) +
+  scale_color_manual(values = c("black", "#ca0020", "#0571b0")) +
+  labs(y = "Density", title = "Comparing N(0,1) to t-distributions")
+```
+
+### Meet the t-test!
+
+$$t = \frac{\bar{x}-\mu_0}{s/\sqrt{n}}$$
+The one-sample t statistic (comparing an average to a null value, $\mu_0$) has a t distribution with $n-1$ **degrees of freedom (df)**
+
+**What are degrees of freedom?:** For this test, the degrees of freedom is equal to $n-1$.
+The higher the degrees of freedom, the closer the shape of the t-distribution is
+to the Normal distribution.
+
+### Meet the t-test!
+
+
+Steps to conduct a t-test:
+
+1. Determine whether the assumptions to conduct the t-test are met.
+2. Calculate the t-test statistic using $\bar{x}$ and $s$ (estimated from your sample),
+$n$ which is also a property of your sample, and $\mu_0$ from the null
+hypothesis. 
+
+$$t = \frac{\bar{x}-\mu_0}{s/\sqrt{n}}$$
+
+3. Compute the probability of observing this test statistic $t$ or more extreme
+under the null hypothesis. This is the p-value. We use this using the R 
+function `pt(q=t, df=n-1)`
+
+4. Interpret the p-value. Is the probability very small (and shows evidence 
+against the null distribution in favor of the alternative)? Sometimes, you will 
+be ask to compare the p-value to a pre-defined significance level, $\alpha$, where
+$\alpha=0.05$ most commonly (but we talked about why we don't always do this!)
+
+### Guess the R functions
+
+```{r t-functions, eval=F}
+pt(q = , df = , lower.tail = )
+qt(p = , df = , lower.tail = )
+```
+
+Which one would we use to calculate the p-value for a hypothesis test after we
+calculated the t-test statistic? `pt` or `qt`?
+
+Suppose you calculated t = -2 and you know that the sample size was 100. Write 
+the code to calculate the p-value for a two-sided test:
+
+```{r}
+pt(-2,df=99)*2
+```
+
+### Calculating a confidence interval for the t-test
+
+Draw an SRS of size $n$ from a large population having unknown mean $\mu$ and
+unknown standard deviation $\sigma$. A level C **confidence interval for $\mu$**
+is: 
+
+$$\bar{x}\pm t^*\frac{s}{\sqrt{n}}$$
+where $t^*$ is the critical value for the $t(df=n-1)$ density curve with area C
+between $-t*$ and $t*$. 
+
+Supposing we had $n=100$, what is $t^*$ for a 95% confidence interval?
+
+### Answer to previous question
+
+```{r}
+qt(p = 0.975, df = 99)
+```
+
+### Example: Testosterone and obesity in adolescent males (pg 422 B&M Ed 4)
+
+Here are the data for $n=25$ adolescent males between the ages of 14 and 20:
+
+```{r, message=F, warning=F}
+library(tidyverse)
+testosterone <- c(0.30, 0.24, 0.19, 0.17, 0.18, 0.23, 0.24, 0.06, 0.15,
+                  0.17, 0.18, 0.17, 0.15, 0.12, 0.25, 0.25, 0.25, 0.32, 
+                  0.35, 0.37, 0.39, 0.46, 0.49, 0.42, 0.36)
+dat_test <- data.frame(testosterone)
+
+ggplot(dat_test, aes(x = testosterone)) + geom_histogram(binwidth = 0.05, col = "white")
+```
+
+### Example: Testosterone and obesity in adolescent males (pg 422 B&M Ed 4)
+
+Use R to calculate a 95% confidence interval for testosterone. We can do this 
+using `summarize`
+
+```{r}
+dat_test %>% summarize(sample_mean = mean(testosterone), #sample mean
+                       sample_sd = sd(testosterone), #sample standard dev
+                       sample_size = length(testosterone), #sample size n
+                       sample_se = sample_sd/sqrt(sample_size)) #standard error of mean
+```
+
+We still need the $t^*$ value:
+
+```{r}
+t_star <- qt(p = 0.975, df = 24)
+t_star
+# Note, just barely bigger than the N(0,1)  97.5% quantile of 1.96
+```
+
+### Example: Testosterone and obesity in adolescent males (pg 422 B&M Ed 4)
+
+Expand the previous code chunk to calculate the margin of error (which uses the
+critical $t^*$ value), and then calculate the lower and upper CI
+
+```{r}
+dat_test %>% summarize(sample_mean = mean(testosterone),
+                       sample_sd = sd(testosterone),
+                       sample_size = length(testosterone),
+                       sample_se = sample_sd/sqrt(sample_size),
+                       margin_of_error = sample_se*t_star, 
+                       lower_CI = sample_mean - margin_of_error, 
+                       upper_CI = sample_mean + margin_of_error)
+```
+
+Interpret: The sample mean $\bar{x}$ is 0.26 and its 95% confidence interval is 0.21 to 0.30.
+Using this method, 95% of the confidence intervals we make will contain the true
+population mean $\mu$.
+
+### The t-test
+
+Draw an SRS of size $n$ from a large population having unknown mean $\mu$ and 
+unknown standard deviation $\sigma$. To test the hypothesis $H_0: \mu=\mu_0$,
+calculate the t statistic:
+
+$$t=\frac{\bar{x}-\mu_0}{s/\sqrt{n}}$$
+
+$t$ comes from the t-distribution with $n-1$ degrees of freedom. For the $t$ we
+calculate from our sample, the next step is to calculate the probability that we
+would see this t (or a more extreme value) under the null distribution. 
+
+$H_a$: $\mu > \mu_0$ is $P(T \geq t)$, using code: `pt(q = t, df = n-1, lower.tail = F)`
+
+```{r, out.width="30%", echo=F}
+upper <- ggplot(data = data.frame(x = c(-4, 4)), aes(x)) + 
+  geom_area(stat = "function", fun = dt, args = list(df=10),
+            xlim = c(1.7, 4), fill = "orange") +
+  stat_function(fun = dt, n = 101, args = list(df=10)) +
+  theme_minimal(base_size = 15) + 
+  labs(title = "One-sided (above)", y = "Density", x = "") +
+  theme(aspect.ratio=1) 
+upper
+```
+
+$H_a$: $\mu < \mu_0$ is $P(T \leq t)$, using code: `pt(q = t, df = n-1)`
+
+```{r, out.width="30%", echo=F}
+lower <- ggplot(data = data.frame(x = c(-4, 4)), aes(x)) + 
+  geom_area(stat = "function", fun = dt, args = list(df=10),
+            xlim = c(-4, -1.7), fill = "orange") +
+  stat_function(fun = dt, n = 101, args = list(df=10)) +
+  theme_minimal(base_size = 15) + 
+  labs(title = "One-sided (below)", y = "Density", x = "") +
+  theme(aspect.ratio=1)
+lower
+```
+
+$H_a$: $\mu \neq \mu_0$ is $2\times P(T \geq |t|)$, using code: `pt(q = t, df = n-1)*2` if your t is negative, or `pt(q = t, df = n-1, lower.tail = F) * 2` if your t is positive.
+
+```{r, out.width="30%", echo=F}
+both <- ggplot(data = data.frame(x = c(-3, 3)), aes(x)) + 
+  geom_area(stat = "function", fun = dt, args = list(df=25),
+            xlim = c(1.7, 3), fill = "orange") +
+  geom_area(stat = "function", fun = dt, args = list(df=25),
+            xlim = c(-3, -1.7), fill = "orange") +
+  stat_function(fun = dt, n = 101, args = list(df=25)) +
+  theme_minimal(base_size = 15) + 
+  labs(title = "Two-sided", y = "Density", x = "") +
+  theme(aspect.ratio=1)
+
+#library(patchwork)
+both
+#upper + lower + both + plot_layout() 
+```
+
+### Example of a t-test (pg 426 B&M Ed 4)
+
+Here are 18 measures of pulse wave velocity (PWV) from a sample of children
+diagnosed with progeria, a genetic disorder that produces rapid aging.
+
+```{r}
+pwv <- c(18.8, 17.6, 17.5, 16.0, 14.8, 14.1, 13.7, 13.1, 12.9,
+         12.9, 12.4, 10.1, 9.3,  9.1,  8.3,  8.3,  7.9,  7.2)
+
+pwv_dat <- data.frame(pwv)
+```
+
+For the general population, pwv measures greater than 6.6 are considered 
+abnormally high. We would like to test the hypothesis that the mean for this 
+subset of children is abnormally high.
+
+That is: $H_0: \mu = 6.6$ and $H_a: \mu>6.6$
+
+### Look at the data and see if there is evidence against the null hypothesis
+
+```{r, fig.align='center', out.width="80%", echo=F}
+ggplot(pwv_dat, aes(x = pwv)) +
+  theme_minimal(base_size = 15) +
+  geom_histogram(binwidth = 2, fill = "white", col = "black") +
+  geom_vline(xintercept = 6.6, lty = 2, col = "blue") +
+  geom_text(aes(x=6, y = 3.5, label = "H0"), check_overlap = T, col = "blue") +
+  geom_vline(xintercept = 12.44, lty = 2) +
+  geom_text(aes(x=11.8, y = 3.5, label = "sample\nmean"), check_overlap = T) 
+```
+
+
+### Calculations using R code
+
+```{r}
+pwv_dat %>% 
+  summarize(sample_mean = mean(pwv),
+            sample_sd = sd(pwv),
+            sample_size = length(pwv),
+            sample_se = sample_sd/sqrt(sample_size),
+            t_test = (sample_mean - 6.6)/sample_se, 
+            p_value = 1 - pt(t_test, df = sample_size - 1))
+```
+
+* Know also how to do these calculations by hand. For example, you could be 
+provided with $\bar{x}$ and $s$ for this sample and asked to compute the test
+statistic
+* You cannot compute the p-value by hand, but should know the code required to 
+calculate the p-value and how to interpret it.
+
+### There's a function for that...
+
+Rather than doing the test using summarize, we could have R do it for us using
+`t.test`:
+
+```{r}
+t.test(x = pwv_dat %>% pull(pwv), alternative = "greater", mu = 6.6)
+```
+
+### Matched pairs t procedures
+
+- skip this section for now. We will come back to this next week.
+
+### Robustness of t procedures
+
+- A confidence interval or hypothesis test is called **robust** if the confidence
+level or p-value does not change very much when the conditions for use of the 
+procedure are violated.
+
+- In particular, how robust are the procedures against non-Normality?
+
+- The t procedures are quite robust against non-Normality of the population
+except when outliers or strong skewness are present.
+
+- The t procedures are not robust against a few outliers unless the sample size is 
+sufficiently large.
+
+### Checking assumptions
+
+- Always plot your data first:
+    - Are there any outliers
+    - Is the distribution of the data skewed?
+    
+### Guidelines for using the $t$ procedures
+
+- The SRS condition is more important that the Normality condition
+- If n < 15: Use $t$ procedures if the data appear close to Normal (at least 
+roughly symmetric, single peak, no outliers). If the data are skewed or there
+are outliers, don't use $t$.
+- Moderate sample size > 15: The $t$ procedures can be used except in the presence
+of outliers or strong skewness
+- Large sample size, roughly $n \geq 40$: The $t$ procedures can be used even 
+for strongly skewed distributions when the sample is large, roughly $n \geq 40$
+
+### Example 17.5: Can we use $t$?
+
+- Good text example. Here you are provided with four datasets and their distributions
+and sample sizes and are asked whether it is appropriate to use a t-test.
+- Pg. 436 of edition 4.
+
+### Recap
+
+- We use a z-test when the population sd $\sigma$ is known
+- We use a t-test when the population sd has to be estimated by $s$
+- We compare the z test statistic to a N(0,1) distribution to calculate the p-value
+- We compare the t test statistics t a t distribution with degrees of freedom on n-1
+- When n is large, the t distribution is very close to the N(0,1) distribution. 
+This means that we have some intuition about whether the p-value is going to be 
+small or large when the sample large is big.
+
+
+
