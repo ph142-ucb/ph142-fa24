@@ -1,0 +1,465 @@
+---
+title: "Lecture 25: Paired T-tests" 
+subtitle: "Part of Ch 17"
+author: "Corinne Riddell (Instructor: Alan Hubbard and Tomer Altman)"
+date: "October 25, 2023"
+output: pdf_document
+#output: slidy_presentation
+editor_options: 
+  chunk_output_type: console
+---
+
+## Motivation
+
+Suppose you received the following graphic illustrating cholesterol measurements following two alternate diets. What do you think about these data? 
+
+```{r make-dataset, echo=F, message=F, warning=F}
+# Eleven study participants were randomized to each diet, and you're tasked with 
+# figuring out whether there is a difference between the diet's average cholesterol levels.
+
+library(tidyverse)
+library(RColorBrewer)
+
+set.seed(123)
+trt_a <- c(155, 180, 190, 192, 203, 201, 207, 208, 217, 228, 237)
+
+# Model parameters: You can play around with these to see how they affect your analysis.
+signal <- 7 # note: this is the true underlying mean difference we will estimate
+noise <- 4  # note: 4/sqrt(n) is the true SE of the mean = 1.21, where n = length(trt_a) = 11
+
+trt_b <- trt_a + rnorm(length(trt_a), signal, noise)
+
+chol_dat <- data.frame("A" = trt_a, "B" = trt_b, "id" = 1:length(trt_a))
+
+chol_dat_long <- chol_dat %>% gather(A, B, key = "diet", value = "cholesterol")
+```
+
+```{r, out.width="50%", echo=F, fig.align='center'}
+ggplot(chol_dat_long, aes(diet, cholesterol)) + 
+  geom_jitter(width = 0.03, pch = 21, size = 5, fill = "#2ca25f", alpha = 0.8) + 
+  labs(y = "Cholesterol", x = "Diet") +
+  theme_minimal(base_size = 15)
+```
+
+## Motivation
+
+```{r, out.width="50%", echo=F, fig.align='center'}
+means <- chol_dat_long %>% 
+  group_by(diet) %>% 
+  summarise(mean = round(mean(cholesterol), 1),
+            median = round(median(cholesterol), 1))
+
+ggplot(chol_dat_long, aes(diet, cholesterol)) + 
+  geom_boxplot(fill = "transparent") +
+  geom_jitter(width = 0.03, pch = 21, size = 5, fill = "#2ca25f", alpha = 0.8) + 
+  labs(y = "Cholesterol", x = "Diet") +
+  geom_text(data = means, aes(x = diet, y = 260, label = paste0("Mean: ", mean)), size = 5) +
+  theme_minimal(base_size = 15)
+```
+
+- What do you notice about the variability between participants under each diet?
+- What is the mean difference? 
+
+```{r, echo=F, eval=F}
+#There is a lot of between subject variability. This variation has nothing to do with the treatments.
+#The mean difference is 7.8 units.
+```
+
+## Motivation {.smaller .build}
+
+A two sample t-test assuming all measurements are independent reveals no evidence against the null hypothesis of no difference between the diets:
+
+```{r, out.width="50%", echo=F, fig.align='center'}
+indep_t <- t.test(x = chol_dat %>% pull(B), 
+                       y = chol_dat %>% pull(A), mu = 0, 
+                       alt = "two.sided", paired = F, 
+                       conf.level = 0.95, var.equal = T)
+
+indep_t
+```
+
+
+***
+
+*... Oh my! I forgot to tell you that there were only eleven individuals in the study, and each of them tried out both diets. Let me update my visualization to reflect this a little bit better...*
+
+## Motivation
+
+Now, what do you notice about the paired data?
+
+```{r, out.width="50%", echo=F, fig.align='center'}
+chol_dat_long <- chol_dat_long %>% mutate(diet_n = ifelse(diet == "A", 1, 2))
+means <- means %>% mutate(diet_n = ifelse(diet == "A", 1, 2))
+
+ggplot(chol_dat_long, aes(diet_n, cholesterol)) + 
+  geom_line(aes(group = id), lty = 3, lwd = 1) +
+  geom_point(aes(fill = as.factor(id)), pch = 21, size = 5, alpha = 0.8) + 
+  scale_fill_brewer(palette = "Spectral") +
+  labs(y = "Cholesterol", x = "Diet") +
+  geom_text(data = means, aes(x = diet_n, y = 260, label = paste0("Mean: ", mean)), size = 5) +
+  theme_minimal() +
+  guides(fill = guide_legend("ID")) +
+  scale_x_continuous(breaks = c(1, 2), labels = c("A", "B"), limits = c(0.5, 2.5)) +
+  theme_minimal(base_size = 15) +
+  theme(panel.grid.minor.x = element_blank())
+```
+
+```{r, echo=F, eval=F}
+# There is a consistent increase in cholesterol under Diet B. 
+# We also know that the mean of the individual differences is equal to the difference
+# of the means --> the average of the individual differences is also 209.4-201.6 = 7.8
+
+# So what is different about the test? It's the standard error. 
+```
+
+## The paired t-test
+
+- We use a paired t-test when the data is **matched by design**
+    - two observations on each participant/patient
+    
+- A paired t-test is a test of the mean **differences** for each individual. It only uses the variation within individuals. 
+
+- To perform a paired t-test, we actually perform a one-sample t-test of the differences. 
+
+- The test statistic is: 
+$t = \frac{\bar{x}_d-0}{s_d/\sqrt{n}}$
+
+Here, $\bar{x}_d$ is the average of the differences (e.g., Diet B - Diet A) across the eleven individuals in the study, and $s_d$ is the standard deviation of the differences.
+
+- It can be compared to a critical value from the t distribution with $n-1$ degrees of freedom, where $n$ is the number of unique individuals in the study.
+
+## Calculate the test statistic, p-value, and 95% confidence interval {.demphasize}
+
+- First let's have a look at the dataset as is:
+
+```{r peak-data} 
+head(chol_dat)
+```
+
+## Calculate the test statistic, p-value, and 95% confidence interval {.demphasize}
+
+- We can use functions from the library `dplyr` to calculate the test statistic
+- Use `mutate` to calculate each participant's difference:
+
+```{r mutate-diff, out.width="50%", echo=F, fig.align='center'}
+chol_dat <- chol_dat %>% 
+  mutate(diff = B - A)
+
+head(chol_dat)
+
+ggplot(data = chol_dat, aes(x = diff)) +
+  geom_histogram(col="white", binwidth = 3) +
+  scale_x_continuous(limits = c(0,20)) +
+  labs(x = "Differences in cholesterol from Diet B to A", 
+       y = "Number of subjects") +
+  theme_minimal(base_size = 15)
+```
+
+## Calculate the test statistic, p-value, and 95% confidence interval
+
+- Then use `summarize` to calculate the mean difference ($\bar{x}_d$), its
+standard error (${s}_d/\sqrt{n}$), and the t-statistic:
+
+```{r calc-t-stat}
+summary_stats <- chol_dat %>% 
+  summarize(mean_diff = mean(diff),  # mean difference
+            std_err_diff = sd(diff)/sqrt(n()),  # SE of the mean 
+            t_stat = mean_diff/std_err_diff)   # test statistic
+
+summary_stats
+```
+
+## Sidebar: The `pull()` function
+
+What does `pull()` do in R and how does it compare to `select()`?
+
+Examine the structure of the output after `pull()`ing vs. `select()`ing `t_stat`
+from the `summary_stat` data frame:
+
+```{r}
+summary_stats %>% pull(t_stat) %>% str()
+summary_stats %>% select(t_stat) %>% str()
+```
+
+## Sidebar: The `pull()` function
+
+```{r, echo=F}
+img1 <- png::readPNG("./images/pull-vs-select.png")
+grid::grid.raster(img1)
+```
+
+
+## Calculate the test statistic, p-value, and 95% confidence interval {.tiny}
+
+What is the <b class = "greentext">probability</b> of observing a t-stat $\geq$ `r round(summary_stats$t_stat, 2)` or $\leq$ `r round(-summary_stats$t_stat, 2)` using the `pt` command?
+
+```{r graph-t, out.width="50%", echo=F, fig.align='center'}
+ggplot(data.frame(x = rt(100000, 10)), aes(x = x)) + 
+  stat_function(fun = dt, args = list(df = 10)) + 
+  scale_x_continuous(limits = c(-9, 9), 
+                     breaks = c(-8, -4, 0, 4, 8), 
+                     labels = c(-8, -4, 0, 4, 8))  +
+  geom_vline(xintercept = c(-summary_stats$t_stat, summary_stats$t_stat), lty = 3) +
+  geom_area(stat = "function", fun = dt, args = list(df = 10), fill = "blue", xlim = c(-5, -summary_stats$t_stat)) +
+  geom_area(stat = "function", fun = dt, args = list(df = 10), fill = "blue", xlim = c(summary_stats$t_stat, 5)) + 
+  labs(x = "t distribution") + 
+  theme(panel.grid.minor = element_blank()) 
+```
+
+```{r calc-pval}
+pt(q = summary_stats %>% pull(t_stat), lower.tail = F, df = 10) * 2
+```
+
+## Calculate the test statistic, p-value, and 95% confidence interval {.demphasized}
+
+- To calculate the 95% confidence interval, we need to know the quantile of the 
+t distribution such that 2.5% of the data lies above or below it.
+
+- Ask R: What is the <b class = "greentext">quantile</b> such that 97.5% of the t-distribution is below it on 10 degrees of freedom using the `qt` command.
+
+```{r calc-CI}
+q <- qt(p = 0.975, lower.tail = T, df = 10)
+q
+ucl <- summary_stats %>% pull(mean_diff) + (q * summary_stats %>% pull(std_err_diff))   
+lcl <- summary_stats %>% pull(mean_diff) - (q * summary_stats %>% pull(std_err_diff))  
+c(lcl, ucl) %>% round(2)
+```
+
+The confidence interval is `r round(lcl, 2)` to `r round(ucl, 2)`.
+
+Does this 95% confidence interval contain the null hypothesized value if there were no difference between Diet A and Diet B in their effects on cholesterol?
+
+## Calculate the test statistic, p-value, and 95% confidence interval {.demphasized}
+
+- Or, have R do the work for you! Just be sure to specify that `paired = T`.
+```{r lazy-way}
+paired_t <- t.test(chol_dat %>% pull(B), chol_dat %>% pull(A), 
+                   alternative = "two.sided", mu = 0, paired = T)
+paired_t
+```
+
+## Compare the outputs from the independent and paired tests
+
+* Below, we re-run the code, but this time we do not specify `paired=T`.
+* Note this is the wrong test because these data are **paired**. We print it here to see what the results look like when we run the data as if it were not paired, that is, as if it were **independent**:
+
+```{r compare-ts}
+indep_t
+```
+
+## Compare the outputs from the independent and paired tests
+
+* Now we can compare the output on the previous slide to the output when we specify `paired=T`
+* This is the correct test. It accounts for the **paired** nature of the data. How does the test statistic (`t`), the p-value, and the degrees of freedom change from the previous output?
+
+```{r compare-ts2}
+paired_t
+```
+
+## Compare the outputs from the independent and paired tests {.demphasized}
+
+- What is the same?
+- What is different?
+- What is the estimate of the standard error of the mean for the independent vs. paired t-test?
+  - To get the answer, rearrange the formulas for the test statistics to solve for the SEs. You know the value of the test statistics and the numerator of the test statistics from the R output on the previous two slides.
+
+## Compare the outputs from the independent and paired tests {.demphasized}
+
+- What is the same?
+- What is different?
+- What is the estimate of the standard error of the mean for each test?
+
+```{r calc-se}
+SE_indep <- (indep_t$estimate[1] - indep_t$estimate[2]) / indep_t$statistic
+SE_paired <- paired_t$estimate / paired_t$statistic
+
+c(unname(SE_indep), unname(SE_paired))
+```
+
+The first value is the SE when the data was treated as if it were independent. The second value is the SE when the data was treated as paired.
+
+## Paired t-test: More juice per squeeze
+
+- Question:The standard error was much lower using the paired test. Why?
+- Answer: Only variation within an individual was used to calculate the SE of the mean difference. There is much less variation within an individual (across diets) than between individuals.
+
+## The Statistical Method {.emphasized}
+
+**P**roblem<br>
+**P**lan<br>
+**D**ata<br>
+**A**nalysis<br>
+**C**onclusion
+
+## The Statistical Method {.emphasized}
+
+**P**roblem<br>
+<b class = "greentext">**Plan**<br></b>
+**D**ata<br>
+**A**nalysis<br>
+**C**onclusion
+
+## Plan, a.k.a. experimental design
+
+- Once the **problem** has been stated, the next step is to determine a **plan** to best answer the question.
+One of the tenets of design is to maximize <b class = "greentext">**efficiency**</b>. 
+- In our toy example, a paired test greatly maximized the efficiency by removing the noise introduced by between-subject variability.
+
+## When is a paired design the appropriate design?
+
+1. When "the treatment alleviates a condition rather than affects a cure." (Hills and Armitrage, 1979)
+  - The effect of treatment is short-term. After $t$ amount of time, participants return to baseline.
+  - The $t$ above refers to the <b class = "greentext">**wash-out**</b> period. Before applying the second treatment, participants should have enough time to reach their baseline level. Otherwise there may be a <b class = "greentext">**carry over**</b> effect.
+  - For example, could you run this study if Diet A led to a permanent change in cholesterol levels? No, because if individuals took Diet A first, then their cholesterol measures after Diet B would equal those after Diet A because the effect of Diet A on the outcome is persisting. 
+
+## When is a paired design the appropriate design?
+
+2) The time between the alternative treatments isn't so long as to introduce confounding by other factors.
+  - For example, if you waited a year between applying treatments, other things may have changed in the world
+or in a person's life that affects the outcome.
+  - There is a balance between waiting too long and not waiting long enough.
+
+## Example: Canned soup, fresh soup, and urinary bisphenol A (BPA)
+
+Reference: Carwile JL, Ye X, Zhou X, Calafat AM, Michels KB. **Canned soup consumption and urinary bisphenol A: a randomized crossover trial**. *JAMA*. 2011. 306(20):2218-20.
+
+- One group randomized to consuming canned soup for five days at lunch
+- Second group randomized to consuming fresh soup
+- After two day washout, treatment assignment were reversed
+- On the 4th and 5th day of each treatment, urine samples were collected and pooled
+for each subject to measure BPA
+
+## Example: Canned soup, fresh soup, and urinary bisphenol A (BPA)
+
+- Paired t-test used to measure the difference
+- After canned soup consumption, urinary BPA concentrations were 22.5 ug/L higher
+(95% CI: 19.6, 25.5) than those measured after fresh soup consumption (p < .001)
+
+## Example: Canned soup, fresh soup, and urinary bisphenol A (BPA)
+
+- Treatment sequence did not appear to affect the results 
+
+```{r create-figure, echo=F, fig.width = 7, fig.height = 4}
+#fake data to approximate their Figure
+mean_bpa <- c(1.1, 1.0, 22.3, 19.4)
+ucl_bpa <- c(1.2, 1.1, 27.4, 24.3)
+lcl_bpa <- c(0.9, 0.9, 17.3, 14.5)
+trt <- c(rep("Fresh soup", 2), rep("Canned soup", 2))
+first_trt <- rep(c("Fresh soup", "Canned soup"), 2)
+
+soup_dat <- data.frame("mean" = mean_bpa, "ucl" = ucl_bpa, "lcl"= lcl_bpa,
+                       "trt" = trt, "First Treatment" = first_trt)
+
+ggplot(soup_dat, aes(x = trt, y = mean)) + 
+  geom_point(size = 5) +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl), width = 0.1, linewidth = 2) +
+  facet_wrap(~ First.Treatment, labeller = "label_both") +
+  ylab("Urinary bisphenol A (ug/L)") +
+  xlab("") + theme_minimal() +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 15), 
+        strip.text = element_text(size = 15))
+```
+
+```{r, echo=F, eval=F}
+
+# 1. Identify the two treatments and their duration.
+# 2. How long is the washout period?
+# 3. What would you need to consider to know if this washout period is long enough?
+# 4. The authors state, "In the absence of a period effect, we used a paired t-test...". 
+# What do you think they mean by a period effect?
+# 5. What assumption does the figure investigate?
+
+```
+
+## Statistical assumptions of the paired t-test
+
+- The sample is randomly chosen. 
+    - How was the sample selected?
+- The distribution of differences is normal. 
+    - How could you examine this assumption?
+
+## Observational analogues
+
+- Recall from our earlier example the primary benefit of the paired t-test was the total removal of between-subject variability
+- Observational settings at high risk of confounding due to differences between subjects
+can also benefit from this design
+- In observational studies, we're less interested in hypothesis testing, and more interested in estimating the difference and its confidence interval.
+
+## Example: Vaccination during infancy and healthcare utilization
+
+- While there are many disproven concerns about vaccination, one potentially valid concern is that 
+vaccination may trigger an immune response and lead to inflammation and associated hospital visits (Wilson et al, 2011)
+
+- For non-live vaccines, any adverse inflammation event would occur within 3 days of vaccination
+
+- How might you study the effect of vaccination on healthcare utilization?
+
+```{r, echo=F}
+#You can compared children exposed to vaccinate vs. children unexposed 
+#But the biggest risk is that these children will differ (risk for bias from 
+#confounding is high)
+#variables related to avoidance of vaccination and risk of outcome:
+#eg parental edu, ethnicity, maternal age, smoking, birth weight, etc
+```
+
+## Example: Vaccination during infancy and healthcare utilization
+
+- To fully remove confounding from differences between children, you could conduct a paired design
+in an observational setting
+- You can compare a period of time after vaccination to a control period of time *for each child*
+
+## Example: Vaccination during infancy and healthcare utilization
+
+- When should the control period be?
+- How long should the washout period be?
+
+## Example: Vaccination during infancy and healthcare utilization
+
+Reference: Wilson K, Hawken S, et al. *Vaccine*. 2011;29(21):3746-52.
+
+```{r vaccine-pic, echo=F}
+img <- png::readPNG("./images/vaccine-case-series.png")
+grid::grid.raster(img)
+```
+
+## Example: Vaccination during infancy and healthcare utilization
+
+- "333,244 children received a vaccination at 62 days of age ±30
+days, 86% of which were within a ±10 days window. Of these, 1388
+experienced one of the combined end-points during the immediate
+3 days post vaccination, compared to 4893 in the 9-day control
+period for our primary analysis. The relative incidence of an event
+was 0.85 (0.80–0.90)."
+
+## Example: Vaccination during infancy and healthcare utilization {.build}
+
+- 1388 events in 3 days after vaccination among 333,244 children
+    - This implies 462.7 events per day for these children
+- 4893 events in 9 days after vaccination among 333,244 children
+    - This implies 543.7 events per day for the same number of children
+- The relative difference is: $462.7 / 543.7 = 0.85$, as stated in the paper
+- The relative difference is <1 which indicates more events in the 9-18 day block after vaccination vs. the 0-3 day block
+
+## Summary
+
+1. Use a paired t-test in an experimental setting where the data is paired by design
+    - Pairing can greatly improve efficiency of the estimator 
+2. Incorporate pairing/clustering into observational analyses when the data is paired/clustered by design or in nature
+    - Pairing eliminates confounding from factors that differ between subjects
+
+## Resources {.tiny}
+
+- Gerald Dallal write-up on paired t-tests: http://www.jerrydallal.com/LHSP/paired.htm
+    - The cholesterol example was derived from this work
+- Mike Marin lecture on the t distribution (4.18): https://www.youtube.com/watch?v=ETd-jPhI_tE, and on conducting paired t tests (4.19): https://www.youtube.com/watch?v=yD6aU0fY2lo
+    - Useful if you want a short introduction on conducting t tests in R
+- Hills M, Armitage P. The Two-Period Cross-over Clinical Trial. *Br J Clin Pharmac*. 1979. 8:7-20. 
+    - https://www.ncbi.nlm.nih.gov/pubmed/15595959
+    - A bit advanced for this lecture. A really nice description of these trial designs
+- Carwile JL, Ye X, Zhou X, Calafat AM, Michels KB. **Canned soup consumption and urinary bisphenol A: a randomized crossover trial**. *JAMA*. 2011. 306(20):2218-20.
+    - https://www.ncbi.nlm.nih.gov/pubmed/22110104
+    - A simple and short example of an experimental crossover trial
+- Wilson K, Hawken S, et al. Patterns of emergency room visits, admissions and death following recommended pediatric vaccinations—a population based study of 969,519 vaccination events. *Vaccine*. 2011;29(21):3746-52.
+    - https://www.ncbi.nlm.nih.gov/pubmed/21443964
+    - Observational example of paired data (emphasis on estimation, not testing)
