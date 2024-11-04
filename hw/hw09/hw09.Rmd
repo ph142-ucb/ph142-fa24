@@ -1,0 +1,313 @@
+---
+title: "Problem Set 9"
+author: "Your name and student ID"
+date: "Today's date"
+output:
+  pdf_document: default
+---
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(testthat)
+```
+
+
+### Instructions 
+* Solutions will be released by Sunday, November 10th. 
+* This semester, problem sets are for practice only and will not be turned in for marks.
+
+Helpful hints:
+
+- Every function you need to use was taught during lecture! So you may need to revisit the lecture code to help you along by opening the relevant files on Datahub. Alternatively, you may wish to view the code in the condensed PDFs posted on the course website. Good luck!
+
+- Knit your file early and often to minimize knitting errors! If you copy and paste code for the slides, you are bound to get an error that is hard to diagnose. Typing out the code is the way to smooth knitting! We recommend 
+knitting your file each time after you write a few sentences/add a new code 
+chunk, so you can detect the source of knitting errors more easily. This will save you and the GSIs from frustration!
+
+- To avoid code running off the page, have a look at your knitted PDF and ensure all the code fits in the file. If it doesn't look right, go back to your .Rmd file and add spaces (new lines) using the return or enter key so that the code runs onto the next line.
+\newpage
+
+## Section 1: Parental Leave
+
+Parental leave is often compensated to some degree, but the amount of compensation varies greatly. You read a research article that stated, "across people of all incomes, 47% of leave-takers received full pay during their leave, 16% received partial pay, and 37% received no pay." 
+
+After reading this, you wonder what the distribution of parental leave payment is for low income households. Suppose you conduct a survey of leave-takers within households earning less than $30,000 per year. You surveyed 225 people (selected in a random sample) and found that 51 received full pay, 33 received partial pay, and 141 received no pay.
+
+**1. You would like to investigate whether the distribution of pay for households earning < $30,000 is different from that of all income levels. Does this correspond to a chi-square test of independence or a chi-square test for goodness of fit?**
+
+_Type your answer here, replacing this text._
+
+\newpage
+
+**2. What are the expected counts of leave-takers among households with incomes < $30,000? Assign `p2` to a vector of the expected counts for full pay, partial pay, and no pay. Round each number to 2 decimal places.**
+
+```{r}
+p2 <- NULL # YOUR CODE HERE
+p2
+
+
+# YOUR CODE HERE
+
+```
+
+```{r}
+. = ottr::check("tests/p2.R")
+```
+
+\newpage
+
+**3. State the null hypothesis under which the above expected counts were computed.**
+
+_Type your answer here, replacing this text._
+
+\newpage
+
+**4. Compute the chi-squared statistic by hand and assign the test statistic to `p4`. Round your answer to 2 decimal places.**
+
+```{r}
+p4 <- NULL # YOUR CODE HERE
+p4
+
+
+# YOUR CODE HERE
+
+```
+
+```{r}
+. = ottr::check("tests/p4.R")
+```
+
+\newpage
+
+**5. Which cell (i.e. term in the summation) contributes the most to the test statistic? Assign the letter of your answer choice (e.g., "a") to `p5`.**
+
+a) full pay
+b) partial pay
+c) no pay
+
+```{r}
+p5 <- NULL # YOUR ANSWER CHOICE HERE
+p5
+
+
+# YOUR CODE HERE
+
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p5.R")
+```
+
+\newpage
+
+**6. Compute the p-value for the test statistic you calculated above. Round your answer to 2 decimal places.**
+
+```{r}
+p6 <- NULL # YOUR CODE HERE
+p6
+
+
+# YOUR CODE HERE
+
+```
+
+```{r}
+. = ottr::check("tests/p6.R")
+```
+
+\newpage
+
+**7. Do you believe there is evidence against the null hypothesis in favor of the alternative hypothesis assuming a significance level of 0.001? Assign the letter of your answer choice (e.g., "a") to `p7`.**
+
+a) in favor of null
+b) against null
+
+```{r}
+p7 <- NULL # YOUR ANSWER CHOICE HERE
+p7
+
+
+# YOUR CODE HERE
+
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p7.R")
+```
+
+\newpage
+
+## Section 2: HPV
+
+Human papillomavirus (HPV) is a very common STI that most sexually
+active persons will encounter during their lifetimes. While many people clear 
+the virus, certain strands can lead to adverse health outcomes such as 
+genital warts and cervical cancer. 
+
+Suppose that you selected a random sample from a population and collected
+these data on age and HPV status for the sample:
+
+|Age Group    | HPV +        | HPV -          | Row total   |
+|:-----------:|:------------:|:--------------:|:-----------:|
+|14-19        | 160          | 492            | 652 (33.9%) |
+|20-24        | 85           | 104            | 189 (9.8%)  |
+|25-29        | 48           | 126            | 174 (9.1%)  |
+|30-39        | 90           | 238            | 328 (17.1%) |
+|40-49        | 82           | 242            | 324 (16.9%) |
+|50-59        | 50           | 204            | 254 (13.2%) |
+| Col total   | 515 (26.8%)  | 1406 (73.2%)   | 1921        |
+
+**8. Which variable is explanatory and which is response? Assign the letter of your answer choice (e.g., "a") to `p8`.**
+
+a) explanatory: age group, response: HPV status
+b) explanatory: HPV status, response: age group
+
+```{r}
+p8 <- NULL # YOUR ANSWER CHOICE HERE
+p8
+
+
+# YOUR CODE HERE
+
+```
+
+```{r}
+. = ottr::check("tests/p8.R")
+```
+
+\newpage
+
+**9. Formulate null and alternative hypotheses using these data to test whether there is a relationship between age group and HPV status. State these hypotheses using the language or notation of conditional distributions.**
+
+_Type your answer here, replacing this text._
+
+\newpage
+
+**10. Run the code below to examine the conditional distribution of age by HPV status. Based on this plot, which age group will contribute the most to the  chi-square statistic? That is, can you tell based on this plot when the observed count will differ most from the expected count under the null hypothesis of no relationship between age group and HPV status? Explain how you know.**
+
+```{r create-hpv.data, echo=FALSE, out.width="80%", fig.align=TRUE, message=FALSE}
+age_group <- rep(c("14-19", "20-24", "25-29", "30-39", "40-49", "50-59"), 2)
+hpv_test <- c(rep("positive", 6), rep("negative", 6))
+number_of_women <- c(160, 85, 48, 90, 82, 50, 
+                     492, 104, 126, 238, 242, 204)
+
+hpv_data <- data.frame(age_group, hpv_test, number_of_women)
+
+hpv_data <- hpv_data %>% group_by(hpv_test) %>% 
+  mutate(sum_women = sum(number_of_women),
+         prop_women_age = number_of_women/sum_women)
+
+ggplot(hpv_data, aes(x = age_group, y = prop_women_age)) + 
+  geom_bar(aes(fill = hpv_test), stat = "identity", position = "dodge") +
+  theme_minimal(base_size = 15) +
+  labs(y = "Proportion", x = "Age", 
+       main = "Conditional distribution of age by HPV status")
+```
+
+_Type your answer here, replacing this text._
+
+\newpage
+
+**11. Fill out the table of expected counts under the null hypothesis of no association between age group and HPV status. You don't need to show your work, but make sure you can calculate the expected counts by hand, using a calculator. Round each number to 2 decimal places.**
+
+Expected counts:
+
+|Age Group    | HPV +                     | HPV -                     | 
+|:-----------:|:-------------------------:|:-------------------------:|
+|14-19        |          A                |          H                | 
+|20-24        |          B                |          I                | 
+|25-29        |          C                |          J                | 
+|30-39        |          D                |          K                | 
+|40-49        |          E                |          L                |
+|50-59        |          G                |          M                |
+
+_Type your answer here, replacing this text._
+
+\newpage
+
+**12. Calculate the test statistic by hand. Round your answer to 2 decimal places.**
+
+```{r}
+p12 <- NULL # YOUR CODE HERE
+p12
+
+
+# YOUR CODE HERE
+
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p12.R")
+```
+
+\newpage
+
+**13. Calculate the p-value for your test statistic. Round your answer to 2 decimal places.**
+
+```{r}
+p13 <- NULL # YOUR CODE HERE
+p13
+
+
+# YOUR CODE HERE
+
+```
+
+```{r}
+. = ottr::check("tests/p13.R")
+```
+
+\newpage
+
+**14. Assess whether or not there is evidence against the null in favor of the alternative. Assign the letter of your answer choice (e.g., "a") to `p14`.**
+
+a) in favor of the null
+b) against the null
+
+```{r}
+p14 <- NULL # YOUR ANSWER CHOICE HERE
+p14
+
+
+# YOUR CODE HERE
+
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p14.R")
+```
+
+\newpage
+
+**15. Fill in the blanks. Assign `p15` to a vector of the words (in quotations) to fill in the blanks.**
+
+The bootstrap method is used to compute **_______a________**, while the permutation test is used to conduct **_______b________**.
+
+Bootstrapping involves taking repeated simple random samples **_______c________** replacement from the original sample of the **_______d________** size as the original sample. For each bootstrap, the statistic of interest is calculated (say the median).
+
+These bootstrapped statistics are then plotted on a **_______e________** and the 
+**_______f________** and **________g_______** quantiles are computed to calculate a 95% confidence interval.
+
+```{r}
+p15 <- NULL # YOUR CODE HERE
+p15
+
+
+# YOUR CODE HERE
+
+```
+
+```{r}
+. = ottr::check("tests/p15.R")
+```
+
