@@ -1,0 +1,314 @@
+---
+title: "Lecture 29: Inference about a categorical variable with > 2 levels"
+subtitle: "Chapter 21"
+author: "Instructors: Tomer Altman and Alan Hubbard"
+date: "November 8, 2024"
+output: pdf_document
+---
+
+### Motivation
+
+- When the data is binary (i.e., a categorical variable with only two levels),
+we know how to make confidence intervals and conduct hypothesis tests for 
+$\hat{p}$ (one sample) and for $\hat{p}_1 = \hat{p}_1$ (two sample)
+
+- What do we do for categorical variables with > 2 levels? 
+
+### Jury Selection example
+
+Suppose that the following number of people were selected for jury duty in the 
+previous year, in a county where jury selection was supposed to be random. 
+
+| Ethinicity      | White | Black | Latinx     | Asian      | Other | Total |
+|-----------------|-------|-------|------------|------------|-------|-------|
+| Number selected | 1920  | 347   | 19         | 84         | 130   | 2500  |
+
+You read concerns online that the jury was not selected randomly. How can
+you test this evidence?
+
+- Example derived from this [video](https://www.youtube.com/watch?v=Uk36WGxujkc).
+
+### Jury Selection example
+
+Consider the distribution of race/ethnicity in the county overall:
+
+| Ethinicity          | White | Black | Latinx | Asian  | Other | Total |
+|---------------------|-------|-------|--------|--------|-------|-------|
+| % in the population | 42.2% | 10.3%| 25.1%  | 17.1%   | 5.3% | 100%  |
+
+How far off do the **observed counts** of race/ethnicities in the sample differ
+from what we would expect if the jury had been selected randomly?
+
+### Jury Selection example
+
+Here are the counts we **observed** (**O**):
+
+| Ethinicity      | White | Black | Latinx     | Asian      | Other | Total |
+|-----------------|-------|-------|------------|------------|-------|-------|
+| Observed count  | 1920  | 347   | 19         | 84         | 130   | 2500  |
+
+How do we determine the counts that are **expected** (**E**) under the assumption that selection was random?:
+
+| Ethinicity      | White | Black | Latinx     | Asian      | Other | Total |
+|-----------------|-------|-------|------------|------------|-------|-------|
+| Expected count  |       |       |            |            |       | 2500  |
+
+
+### Jury Selection example
+
+- To fill in the table, multiple the total size of the jury by the % of the 
+population of each race/ethnicity:
+
+Expected counts under the assumption that selection is random from the county:
+
+| Ethnicity      | White       | Black     | Latinx     | Asian      | Other       | Total |
+|:---------------:|:-----------:|:-----------:|:----------:|:----------:|:-----------:|:-----:|
+| Expected count  | 2500 $\times$ 0.422 | 2500 $\times$ 0.103 | 2500 $\times$ 0.251 | 2500 $\times$ 0.171| 2500 $\times$ 0.053 | 2500  |
+| = | 1055  | 257.5 | 627.5      |  427.5     | 132.5 | 2500  |
+
+### Jury Selection example
+
+This plot shows the deviations between the observed and expected number of jurors.
+What is the chance of observed deviations of these magnitudes (or larger) under the
+null  hypothesis?
+
+```{r, out.width="80%", fig.align='center', echo=F}
+
+library(ggplot2)
+observed_counts <- c(1920, 347,   19,    84, 130)
+expected_counts <- c(1055, 257.5, 627.5, 427.5, 132.5)
+race <- c("White", "Black", "Latinx", "Asian", "Other")
+jury_data <- data.frame("observed_counts" = observed_counts, "expected_counts" = expected_counts, "race" = race)
+
+ggplot(jury_data, aes(y = race, x = observed_counts)) + 
+  geom_segment(aes(xend = expected_counts, yend = race)) +
+  geom_point(aes(col = "Observed")) + 
+  geom_point(aes(col = "Expected", x = expected_counts)) +
+  theme_minimal(base_size = 15) +
+  labs(x = "Observed (teal) vs. expected (pink) number of jurors",
+       title = "Deviations between observed and expected number of jurors")
+
+```
+
+### Jury Selection example
+
+- Recall the usual form of the test statistic:
+
+$$\frac{estimate - null}{SE}$$
+
+- We want an estimate that somehow quantifies how different the observed counts ($O$)
+are from the expected counts ($E$) across the 5 race/ethnicities. 
+
+### The Chi-square test statistic
+
+The chi^2^ test statistic quantifies the magnitude of the difference between observed
+and expected counts under the null hypothesis. It looks like this:
+
+$$\chi^2 = \sum_{i=1}^k\frac{(O_i-E_i)^2}{E_i}$$
+
+- $k$ is the number of cells in the table. Here, $k$ is the number of race/ethnicity groups. That is, $k=5$
+- $O_i$ is the observed count for the $i^{th}$ group (here race/ethnicity)
+- $E_i$ is the expected count for the $i^{th}$ group 
+- $\chi^2$ is a distribution, like $t$ or Normal.
+
+### The Chi-square test statistic
+
+$$\chi^2 = \sum_{i=1}^k\frac{(O_i-E_i)^2}{E_i}$$
+
+- The numerator measures the squared deviations between the observed (O) and 
+expected (E) values. Bigger deviations will make the test statistic larger 
+(which means that its corresponding p-value will be smaller)
+
+- The denominator makes this magnitude *relative* to what we expect. This adjusts
+for the different magnitude of expected counts. For example, with our example, we
+would *expect* the number of white jurors to be close to 1055, but we would expect
+the number of Latinx jurors to be close to 628. Therefore, we divide by these
+expectations so that a difference of 100 fewer Latinx jurors counts for more than a difference of 100 fewer white jurors compared to what is expected for each group.
+
+### The Chi-square distribution
+
+The chi-square distribution is a new distribution to us. Like the t-distribution,
+the chi-square distribution only has one parameter: a degrees of freedom. The 
+degrees of freedom is equal to the number of groups (here, race/ethnicities) minus one.
+
+Or, $df=k-1$.
+
+```{r, out.width="60%", fig.align='center', echo=F}
+# ggplot of the distribution at varying degrees of freedom
+
+ggplot(data = data.frame(x = c(0.1, 20)), aes(x)) + 
+  geom_area(stat = "function", fun = dchisq, args = list(df=9),
+            xlim = c(12, 20), fill = "grey") +
+  stat_function(fun = dchisq, n = 101, args = list(df=2), aes(col = "df=2")) +
+  stat_function(fun = dchisq, n = 101, args = list(df=4), aes(col = "df=4")) +
+  stat_function(fun = dchisq, n = 101, args = list(df=9), aes(col = "df=9")) +
+  theme_minimal(base_size = 15) + 
+  theme(aspect.ratio=1) +
+  labs(y = "Density", title = "Chi-squared distributions")
+```
+
+- As the `df` is increased, the distribution's central tendency moves to the right.
+- This means that there will be more probability out in the right tail when the
+degrees of freedom is higher. 
+- The chi-square distribution is also positive. We only ever compute upper tail 
+probabilities for the chi-square test because there is only one form of the $H_a$.
+
+### Back to the jury example
+
+**State the null and alternative hyptoheses.** 
+
+- The null hypothesis is that the proportions of each race/ethnicity in the jury 
+pool is the same as the proportion of each group in the county. That is:
+
+$H_0: p_{white} = 42.2\% \text{, }p_{black}=10.3\%\text{, }p_{latinx}=25.1\%\text{, }p_{asian}=17.1\%\text{, }p_{other}=5.3\%$
+
+$H_a:$ At least one of $p_k$ is different than specified in $H_0$, for $k$ being 
+one of White, Black, Latinx, Asian, or Other.
+
+### Back to the jury example
+
+**Calculate the chi-square statistic using the jury data.**
+
+| Ethinicity      | White | Black | Latinx     | Asian      | Other | Total |
+|-----------------|-------|-------|------------|------------|-------|-------|
+| Observed               | 1920  | 347   | 19         | 84         | 130   | 2500  |
+| Expected               | 1055  | 257.5 | 627.5      | 427.5      | 132.5 | 2500  |
+
+$\chi^2 = \sum_{i=1}^k\frac{(O_i-E_i)^2}{E_i}$
+
+$\chi^2 = \frac{(1920-1055)}{1055}^2 + \frac{(347-257.5)}{257.5}^2 + \frac{(19-627.5)}{627.5}^2 + \frac{(84-427.5)}{427.5}^2 + \frac{(130-132.5)}{132.5}^2$
+
+$\chi^2 = 709.218 + 31.10777 + 590.0753 + 276.0053 + 0.04716981$
+
+$\chi^2 = 1606.454$
+
+### Back to the jury example
+
+**Calculate the p-value (what is the approprate degrees of freedom?).**
+
+```{r}
+pchisq(q = 1606.454, df = 4,lower.tail = F)
+```
+
+The probability of seeing this pool of people chosen for jury duty under the 
+null hypothesis of random sampling from the county is so small that R rounded 
+the p-value to 0! 
+
+### Chi-square test in R
+
+**Run the chi-square test using the `chisq.test` command in R.**
+
+```{r}
+chisq.test(x = c(1920, 347, 19, 84, 130), # x is vector of observed counts
+           p = c(.422, .103, .251, .171, .053)) # p is probability under the null
+```
+
+**Interpretation:**
+
+- Which race/ethnicities appear to deviate the most from what was expected under
+the null hypothesis?
+    - Compare the proportion observed vs. proportion expected
+    - Compare the count observed vs. the count expected
+    - Compare the 5 contributions to the chi-square test from each race/ethnicity.
+    We see that whites, Latinx, and Asians contribute the most to the $\chi^2$
+    statistic. This agrees with what we saw in the data visualization in terms
+    of the size of the gaps between observed and expected counts.
+
+### Example 2: Births by day of the week (Ex. 21.7)
+
+A random sample of 700 births from local records shows the distribution across
+the days of the week:
+
+| Day    | M     | T     | W     | Th    | F     | Sa    | Su    |
+|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| Births | 110   | 124   | 104   | 94    | 112   | 72    | 84    |
+
+Is there evidence that the proportion of births occurring on any given day of 
+the week is not random?
+
+### Example 2: Births by day of the week (Ex. 21.7)
+
+**State the null and alternative hypotheses**
+
+$H_0: p_1 = 1/7$,$p_2=1/7$, $p_3=1/7$, $p_4 = 1/7$, $p_5=1/7$, $p_6=1/7$, $p_7=1/7$ 
+
+Written another way:
+
+$H_0: p_1=p_2=p_3=p_4=p_5=p_6=p_7=1/7$, 
+
+$H_a:$ At least one of these $p_k$ differ from 1/7. Or: not all $p_k$ equal 1/7.
+
+### Example 2: Births by day of the week (Ex. 21.7)
+
+**Calculate the expected counts under $H_0$**
+
+| Day    | M     | T     | W     | Th    | F     | Sa    | Su    |
+|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| Expected births | ? | ? | ?   | ?    | ?   | ?    | ?    |
+
+### Example 2: Births by day of the week (Ex. 21.7)
+
+**Calculate the expected counts under $H_0$**
+
+- Use the fact that the total number of births equalled 700. Then 700*(1/7) = 100.
+We would expect to see around 100 births on each day if the births occurred randomly over the course of the week, that is if the null where $H_0
+
+| Day    | M     | T     | W     | Th    | F     | Sa    | Su    |
+|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| Expected births | 100 | 100 | 100   | 100    | 100   | 100    | 100    |
+
+### Example 2: Births by day of the week (Ex. 21.7)
+
+**Calculate the chi^2^ test statistic**
+
+$\chi^2 = \sum_{i=1}^k\frac{(O_i-E_i)^2}{E_i}$
+
+$\chi^2 = \frac{(110-100)^2}{100} + \frac{(124-100)^2}{100} + \frac{(104-100)^2}{100} + \frac{(94-100)^2}{100} + \frac{(112-100)^2}{100} + \frac{(72-100)^2}{100} + \frac{(84-100)^2}{100}$
+ 
+$\chi^2 = 1 + 5.76 + 0.16 + 0.36 + 1.44 + 7.84 + 2.56$
+
+$\chi^2 = 19.12$
+
+- Based on the individual contributions of each day to the chi-square statistic,
+which days were most different from the expected value under $H_0$?
+
+### Example 2: Births by day of the week (Ex. 21.7)
+
+**Calculate the p-value**
+
+```{r}
+pchisq(q = 19.12, df = 6, lower.tail = F)
+```
+
+**Interpret the p-value**
+
+Based on a p-value of 0.39%, there is very strong evidence against the null 
+hypothesis in favor of an alternative hypothesis where the proportion of births
+across the seven days of the week are not evenly distributed.
+ 
+### Conditions to perform a chi-square test
+
+- Fixed number $n$ of observations
+- All observations are independent of one another. What does this mean in the first
+example? In the second example?
+- Each observation falls into just one of the $k$ mutually exclusive categories
+
+#### Expected counts requirement
+
+- At least 80% of the cells have 5 or more observations expected ($E_i \geq 5$ for $\geq$ 80% of the cells)
+- All $k$ cells have expected counts > 1 ($E_i > 1$ for all cells), that is, given the same size, n, if one did the repeated experiment of drawing SRS of n a "large number of time", then the average of the counts in a cell is always $>1$
+
+
+### Notes about Goodness of Fit tests 
+- The null is probably almost never true in these circumstances (that is, the underlying data matches the null distribuion perfectly)
+- Whenever the null is not perfectly true, the pvalue will go to 0 as $n \rightarrow \infty$.
+- Thus, it is always important to look at the differences that resulted in a the p-value to see if there are important differences rather than make a conclusion just based on p-value.
+
+
+
+
+
+
+
+
+
