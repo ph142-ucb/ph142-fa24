@@ -1,0 +1,324 @@
+---
+title: "Lab 10: Chi Squared Testing"
+author: "Name and Student ID"
+date: "Today's Date"
+output: pdf_document
+---
+
+```{r}
+library(testthat)
+library(dplyr)
+library(ggplot2)
+```
+
+### Instructions 
+* Due date: Friday, November 15th at 10:00 pm PST with 2 hour grace period.
+* Late penalty: 50% late penalty if submitted within 24 hours of due date, no marks for assignments submitted thereafter.
+* This assignment is graded on **correct completion**, all or nothing. You must pass all public tests and submit the assignment for credit.
+* Submission process: Follow the submission instructions on the final page. Make sure you do not remove any `\newpage` tags or rename this file, as this will break the submission.
+
+Helpful hints:
+
+- Every function you need to use was taught during lecture! So you may need to 
+revisit the lecture code to help you along by opening the relevant files on Datahub. Alternatively, you may wish to view the code in the condensed PDFs posted on the course website. Good luck!
+
+- Knit your file early and often to minimize knitting errors! If you copy and 
+paste code for the slides, you are bound to get an error that is hard to 
+diagnose. Typing out the code is the way to smooth knitting! We recommend 
+knitting your file each time after you write a few sentences/add a new code 
+chunk, so you can detect the source of knitting errors more easily. This will 
+save you and the GSIs from frustration! You must knit correctly before submitting.*
+
+- If your code runs off the page of the knitted PDF then you will LOSE POINTS! To
+avoid this, have a look at your knitted PDF and ensure all the code fits in the 
+file (you can easily view it on Gradescope via the provided link after submitting). If it doesn't look right, go back to your .Rmd file and add spaces (new lines) using the return or enter key so that the code runs onto the next line.
+
+### Chi Squared Testing
+
+As the textbook mentions, the chi-square statistic is a measure of how far the observed counts in a two-way table are from the expected counts. The formula for the statistic is:
+
+$$ X^2 = \sum\frac{(count_{observed} - count_{expected})^2}{count_{expected}} $$
+The sum is over all cells in the table. That is, there are as many terms in the sum as there are cells in the table. Each term in the sum is called a $X^2$ component.
+
+## Section 1: Melanoma 
+
+Adapted from Baldi and Moore Question 21.29
+
+Melanoma is a rare form of skin cancer that accounts for the great majority of skin cancer fatalities. UV exposure is a major risk for melanoma. We would like to explore whether body parts that have increased sun exposure are more susceptible to melanoma. A random sample of 310 women diagnosed with melanoma were classified according to the known location of the melanoma on their bodies. Here are the results:
+
+Location | Head/Neck | Trunk | Upper Limbs | Lower Limbs |
+---------|-----------|-------|-------------|-------------|
+Count    |     45    |   80  |     34      |      151    |
+---------|-----------|-------|-------------|-------------|
+Expected |    XXXX   |  XXXX |     XXXX    |     XXXX    |
+---------|-----------|-------|-------------|-------------|
+
+**1. Assuming each of the four locations represent roughly equal amounts of area on the skin, fill in the expected counts below.** 
+
+_Type your answer here, replacing this text._
+
+**2. What are the assumptions for completing a Chi Squared test? Are the conditions met for this example?**
+
+_Type your answer here, replacing this text._
+
+**3. [1 point] Perform a chi-squared test for goodness of fit. First state the null and alternative hypotheses, then use R to calculate the test statistic, and assign the associated p-value rounded to 2 decimal places to the object `p3`.**
+
+```{r tags=c()}
+p3 <- NULL # YOUR CODE HERE
+p3
+
+# YOUR CODE HERE
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p3.R")
+```
+
+\newpage
+
+## Section 2: BMI and Framingham Offspring Sample
+
+Adapted from: http://sphweb.bumc.bu.edu/otlt/MPH-Modules/BS/BS704_HypothesisTesting-ChiSquare/BS704_HypothesisTesting-ChiSquare2.html
+
+The National Center for Health Statistics (NCHS) provided data on the distribution of weight (in categories) among Americans in 2002. The distribution was based on specific values of body mass index (BMI).
+
+Underweight is defined as BMI< 18.5, Normal weight as BMI between 18.5 and 24.9, overweight as BMI between 25 and 29.9, and obese as BMI of 30 or greater. 
+
+Americans in 2002 were distributed as follows: 2% Underweight, 39% Normal Weight, 36% Overweight, and 23% Obese. Suppose we want to assess whether the distribution of BMI is different in the Framingham Offspring sample.
+
+Using data from the n = 3,326 participants who attended the seventh examination of the Offspring in the Framingham Heart Study we created the BMI categories as defined and observed the following:
+
+BMI      | Underweight | Normal Weight | Overweight  |     Obese   | Total |
+---------|-------------|---------------|-------------|-------------|-------|
+Count    |     20      |     932       |    1374     |    1000     |  3326 |
+---------|-------------|---------------|-------------|-------------|-------|
+Expected |    XXXX     |    XXXXXX     |    XXXXXX   |     XXX     | 3326  |
+---------|-------------|---------------|-------------|-------------|-------|
+
+**4. State the null and alternative hypotheses for this test and fill in the expected counts for each category of BMI.**
+
+_Type your answer here, replacing this text._
+
+**5. [1 point] What value of the test statistic under the Chi-Squared distribution will we reject the null hypothesis, assuming a significance cut-off value of 0.05? Round your answer to 4 decimal places. (Hint: What are the degrees of freedom for this test?)**
+
+```{r tags=c()}
+reject_value <- NULL # YOUR CODE HERE
+reject_value
+
+# YOUR CODE HERE
+```
+
+```{r}
+. = ottr::check("tests/p5.R")
+```
+
+**6. [1 point] Perform a chi-squared test for goodness of fit. Round your p-value to 2 decimal places and assign this to the object `p6`. What is your interpretation of this value?**
+
+```{r tags=c()}
+p6 <- NULL # YOUR CODE HERE
+p6
+
+# YOUR CODE HERE
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p6.R")
+```
+
+\newpage
+
+## Chi-Squared Test for Independence
+
+The chi-square test for a two-way table with r rows and c columns uses critical values from the chi-square distribution with (r-1)(c-1) degrees of freedom.
+
+In research, we are often interested in making the assumption that two explanatory variables are (mostly) independent. Independence is actually one condition which permits us to include multiple explanatory variables in a linear regression (i.e., the line of best fit model that you explored in the first part of the course). Thus, the Chi-Squared test for independence can be quite useful as a tool to explore whether two categorical variables show substantial dependence.
+
+In section 3 of this lab, we will practice the data cleaning, visualization, and analysis that is required to carry out a chi-squared test for two-way tables.
+
+\newpage
+
+### Section 3: Are angry people more likely to have heart disease?
+
+Intro and Data are from the text (Example 22.40) 
+
+A study followed a random sample of 12,986 people from three locations for four years and concluded that people who get angry easily tend to have more heart disease. All subjects were free of heart disease at the beginning of the study. The subjects took the Spielberger Trait Anger Scale test, which measures how prone a person is to sudden anger. Here are data for the 8474 people in the sample who had normal blood pressure. CHD stands for “coronary heart disease” - this includes people who had heart attacks and those who needed medical treatment for heart disease.
+
+|        | Low anger   | Moderate anger | High anger |
+|--------|-------------|----------------|------------|
+| CHD    |     53      |      110       |     27     |
+| No CHD |     3057    |     4621       |    606     |
+
+Let's explore if these data support the conclusion of the study!
+
+**7. Based on the two-way table above and the framework of the study, write the null and alternative hypotheses that we will be exploring using a chi-squared test.**
+
+_Type your answer here, replacing this text._
+
+Next, we need to figure out the expected counts of heart disease and anger levels if the two categorical variables are independent. The dataframe below contains the data from the two-way table in the introduction:
+
+```{r Create Dataset, include=FALSE}
+chd_by_anger_level <- 
+  data.frame(anger_level   = c("Low", "Low",    "Moderate", "Moderate", "High", "High"),
+             heart_disease = c("CHD", "No CHD", "CHD",      "No CHD",   "CHD",  "No CHD"),
+             actual_count  = c(53,    3057,     110,        4621,       27,     606),
+             stringsAsFactors = FALSE)
+chd_by_anger_level
+```
+
+**8. Use `dplyr` functions to add variables for the row totals (called `row_total`), column totals (called `column_total`), and sample size (called `sample_size`) to the dataframe called `chd_by_anger_level` created above. Then enter these values in the table below. (HINT: The code for computing row totals is given. Use this code as a template to compute column totals and the sample size)**  
+
+|              | Low anger   | Moderate anger | High anger |  Row Total    |  
+|--------------|-------------|----------------|------------|---------------|
+| CHD          |    XX       |      XXX       |     XX     |     XXX       |
+| No CHD       |     XXXX    |     XXXX       |    XXXX    |    XXXX       |
+|--------------|-------------|----------------|------------|---------------|
+| Column Total |    XXXX     |      XXXX      |   XXX      |    XXXX       |
+_Type your answer here, replacing this text._
+
+```{r tags=c()}
+chd_by_anger_level <-
+  chd_by_anger_level %>%
+  group_by(heart_disease) %>%
+  mutate(row_total = sum(actual_count)) %>%
+  ungroup()
+  
+chd_by_anger_level <- NULL # YOUR CODE FOR CALCULATING COLUMN TOTALS
+
+chd_by_anger_level <- NULL # YOUR CODE FOR CALCULATING SAMPLE SIZE
+
+
+# YOUR CODE HERE
+```
+
+**9. [2 points] Use the following formula from the lecture notes to create a column for the expected counts, called `expected_count`, to the `chd_by_anger_level` dataframe. Assign `p9` to a vector of all of the expected counts (not rounded) in the order they appear in the table.**
+$$E_i =\frac{\text{row total}\times\text{col total}}{\text{overall total}}$$
+
+```{r tags=c()}
+p9 <- NULL # YOUR CODE HERE
+p9
+
+# YOUR CODE HERE
+```
+
+```{r}
+. = ottr::check("tests/p9.R")
+```
+
+**10. Before continuing with the analysis, confirm that we meet the two requirements to conduct a chi-squared test for independence.**
+
+1) No more than 20% of the expected counts are smaller than 5.0
+2) All individual expected counts are 1.0 or greater
+
+```{r tags=c()}
+proportion_small_exp_counts <- NULL # YOUR CODE FOR HERE
+expected_count_less_1 <- NULL # YOUR CODE HERE
+
+
+# YOUR CODE HERE
+```
+
+_Type your answer here, replacing this text._
+
+Next, let's visualize our data to see if there may be a significant relationship between heart disease and anger.
+
+**11. [1 point] First we'll need to calculate the probability of each anger level conditional on CHD Status. Add these conditional probabilities to the `chd_by_anger_level` dataframe in a variable called `cond_prop_anger`.**
+
+```{r tags=c()}
+chd_by_anger_level <- NULL # YOUR CODE HERE
+chd_by_anger_level
+
+# YOUR CODE HERE
+```
+
+```{r}
+. = ottr::check("tests/p11.R")
+```
+
+**12. [1 point] Create a dodged bar graph of the conditional anger probabilities dodged by CHD status. Interpret the results.**
+
+```{r tags=c()}
+dodged <- NULL # YOUR CODE HERE
+dodged
+
+# YOUR CODE HERE
+
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p12.R")
+```
+
+Now we are ready to conduct our chi-squared test of independence!
+
+**13. [1 point] Compute the chi-squared test statistic and assign this value to `p13`.**
+
+```{r tags=c()}
+p13 <- NULL # YOUR CODE HERE
+p13
+
+# YOUR CODE HERE
+
+```
+
+```{r}
+. = ottr::check("tests/p13.R")
+```
+
+**14. [1 point] Determine the p-value of your chi-squared test statistic, assign this (unrounded) value to `p14`, and interpret this value in the context of this problem.**
+
+```{r tags=c()}
+p14 <- NULL # YOUR CODE HERE
+p14
+
+# YOUR CODE HERE
+
+```
+
+_Type your answer here, replacing this text._
+
+```{r}
+. = ottr::check("tests/p14.R")
+```
+
+**15. How might we have tested for independence between anger and heart disease prevalence during the probability section of the course? Would we have found that anger and heart disease are independent using our old problem-solving process? How does this method differ from comparing conditional probabilities?**
+
+_Type your answer here, replacing this text._
+
+\newpage
+
+### Submission
+
+For assignments in this class, you'll be submitting using the **Terminal** tab in the pane below. In order for the submission to work properly, make sure that:
+
+1. Any image files you add that are needed to knit the file are in the `src` folder and file paths are specified accordingly. 
+2. You **have not changed the file name** of the assignment.
+3. The file is saved (the file name in the tab should be **black**, not red with an asterisk).
+4. The file knits properly.
+
+Once you have checked these items, you can proceed to submit your assignment.
+
+1. Click on the **Terminal** tab in the pane below.
+2. Copy-paste the following line of code into the terminal and press enter.
+
+cd; cd ph142-fa24/lab/lab10; python3 turn_in.py
+
+3. Follow the prompts to enter your Gradescope username and password. When entering your password, you won't see anything come up on the screen--don't worry! This is just for security purposes--just keep typing and hit enter.
+4. If the submission is successful, you should see "Submission successful!" appear as output.
+5. If the submission fails, try to diagnose the issue using the error messages--if you have problems, post on Piazza. 
+
+The late policy will be strictly enforced, **no matter the reason**, including submission issues, so be sure to submit early enough to have time to diagnose issues if problems arise.
+
+## Submission
+
+Make sure you have run all cells in your notebook in order before running the cell below, so that all images/graphs appear in the output. The cell below will generate a zip file for you to submit. **Please save before exporting!**
+
+```{r}
+# Save your notebook first, then run this cell to export your submission.
+ottr::export("lab10_fall.Rmd", pdf = TRUE)
+```
