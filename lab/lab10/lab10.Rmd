@@ -310,6 +310,6 @@ cd; cd ph142-fa24/lab/lab10; python3 turn_in.py
 
 3. Follow the prompts to enter your Gradescope username and password. When entering your password, you won't see anything come up on the screen--don't worry! This is just for security purposes--just keep typing and hit enter.
 4. If the submission is successful, you should see "Submission successful!" appear as output.
-5. If the submission fails, try to diagnose the issue using the error messages--if you have problems, post on Piazza. 
+5. If the submission fails, try to diagnose the issue using the error messages--if you have problems, post on Ed. 
 
 The late policy will be strictly enforced, **no matter the reason**, including submission issues, so be sure to submit early enough to have time to diagnose issues if problems arise.
