@@ -1,8 +1,9 @@
 ---
 title: "Lecture 34: Comparing means in more than 2 groups, Analysis of Variance (ANOVA)"
 author: "Instructors: Tomer Altman and Alan Hubbard"
-date: "November 22, 2024"
+date: "November 22 & 25, 2024"
 output: pdf_document
+#output: slidy_presentation
 editor_options: 
   chunk_output_type: console
 ---
@@ -373,11 +374,11 @@ $$F=\frac{\text{variation among group means}}{\text{variation among individuals 
 $$F=\frac{\text{MSG}}{\text{MSE}}$$
 
 * We are comparing the variation across the groups to the variation among individuals in the same group
-* If the F statistic is high, then there is relatively more variation across groups than there is within groups. 
-* If the F statistic is less than 1, then there is more variation across individuals in the same group, then there is
-between group means.
+* If the F statistic is high, then there is relatively more variation across groups than there is within groups
+* If the F statistic is less than one, then there is more variation across individuals in the same group, then there is
+between group means
 * Go back to the applet and move things around. See how the F-statistic changes. When is the F-stat very high vs. 
-when is it <1?
+when is it less than one?
 
 ### The $F$ distribution
 
@@ -405,8 +406,8 @@ tidy(cancer_anova)
 
 - `df` displays the numerator and denominator degrees of freedom for this dataset
 - `sumsq` displays the **sum of squares for groups** and **sum of squares for error**,
-and `meansq` displays the $MSG$ and $MSE$, respectively.
-- You can calculate the `meansq` column by taking `sumsq/df`. 
+and `meansq` displays the $MSG$ and $MSE$, respectively
+- You can calculate the `meansq` column by taking `sumsq/df`
 - `statistic` is the $F$ test statistic, the ratio of the $MSG$ and $MSE$. This $F$ says that the variation between the 
 means is nearly 7 times as large as the variation within the groups. 
 - `p.value` is the p-value for the test. This p-value is equal to 0.003. There is 
@@ -457,7 +458,7 @@ expect to be < 0.05?
 
 Here is the R code and output:
 
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="50%", fig.align='center'}
 diffs <- TukeyHSD(cancer_anova, conf.level = 0.95) %>% tidy()
 diffs
 ```
@@ -474,7 +475,7 @@ of the p-value!**
 
 ### Visualize the pairwise differences
 
-```{r, fig.align='center', out.width="90%"}
+```{r, fig.align='center', out.width="50%"}
 ggplot(diffs, aes(x = contrast, y = estimate)) + geom_point() +
   geom_segment(aes(y = conf.low, yend = conf.high, xend = contrast)) +
   theme_minimal(base_size = 15) +
@@ -486,26 +487,26 @@ ggplot(diffs, aes(x = contrast, y = estimate)) + geom_point() +
                               "Neither vs.\n Cannabinoids", "Neither vs.\n Irradiation"))
 ```
 
-Using Tukey's HSD, we would conclude that the mean for irradiation is different from the mean for both treatments and 
-the mean for neither treatment is different from the mean for both treatments.
+Using Tukey's HSD, we would conclude that the mean for treatment "Irradiation" is different from the mean for treatment "Both",  and 
+the mean for treatment "Neither" is different from the mean for treatment "Both".
 
-Even though the CIs don't overlap with the null value, for three of the other
-comparisons, their adjusted p-values are > 5% so we cannot say for sure if these
+Even though these two CIs don't overlap with the null value, for the other three
+comparisons, their adjusted p-values are > 5%, so we cannot reject the null hypothesis.
 
 ### Conditions for ANOVA
 
-**Condition 1: $k$ independent SRSs, one from each of $k$ populations.**
+**Condition 1: $k$ independent SRSs, one from each of $k$ populations**
 
 - The most important assumption, because this method, like the others in Part III
-of the course, depends on the premise of having taken a random sample. 
+of the course, depends on the premise of having taken a random sample
 
 ### Conditions for ANOVA
 
-**Condition 2: Each of the $k$ populations has a Normal distribution with an unknown mean $\mu_i$.**
+**Condition 2: Each of the $k$ populations has a Normal distribution with an unknown mean $\mu_i$**
 
-- This assumption is not as crucial, but still has an impact.
-- That is, if the sample size is sufficiently large, the ANOVA test is **robust** to non-Normality. 
-- What matters more is Normality of the sample means (guaranteed as $n$ increases because of the CLT). 
+- This assumption is not as crucial, but still has an impact
+- That is, if the sample size is sufficiently large, the ANOVA test is **robust** to non-Normality
+- What matters more is Normality of the sample means (guaranteed as $n$ increases because of the CLT)
 - If the sample size is small (say 4-5 individuals per group) then need data that is symmetric with no outliers (however, hard to tell if only have 4-5 individuals - should consider other methods like permutation)
 
 ### Conditions for ANOVA
@@ -520,10 +521,12 @@ they're similar and indicative that the population parameters are too
 - Rule of thumb: want the largest sample standard deviation to be less than 
 twice as largest as the smallest one. I.e., $s_{max}/s_{min} < 2$
 
-### Good video summarizing running ANOVA in R
+### Good video on running ANOVA in R
+
+ANOVA, ANOVA Multiple Comparisons & Kruskal Wallis in R
+by Mike Marin and Ladan Hamadani
 
 https://youtu.be/lpdFr5SZR0Q
 
 * 5 minutes long
-* Mike also talks about the Kruskal Wallis test, which Mi-Suk will introduce
-you in Monday's recorded lecture.
+* The video also talks about the Kruskal-Wallis test, which is a non-parametric alternative to ANOVA that we will go over next time
