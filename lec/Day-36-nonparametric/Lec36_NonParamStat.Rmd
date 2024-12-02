@@ -3,10 +3,10 @@ title: "Lecture 36:  Non-Parametric Statistical Tests"
 subtitle: "Chapter 27"
 author: "Corrine Riddell (Instructors Alan Hubbard & Tomer Altman)"
 output:
+  slidy_presentation: default
+  #ioslides_presentation: default
   beamer_presentation:
     slide_level: 3
-  #ioslides_presentation: default
-  slidy_presentation: default
 header-includes:
 - \usetheme{Goettingen}
 - \renewcommand{\textbf}{\structure}
