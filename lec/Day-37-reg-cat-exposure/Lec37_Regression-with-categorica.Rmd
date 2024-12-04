@@ -1,0 +1,341 @@
+---
+title: "Regression Modelling with a Categorical Exposure"
+author: "Corinne Riddell (Instructor: Alan Hubbard & Tomer Altman)"
+date: "December 4, 2024"
+output: 
+  pdf_document: default
+  slidy_presentation: default
+editor_options: 
+  chunk_output_type: console
+---
+
+### Learning objectives for today
+
+* Learn how to generalize the simple regression model to the case when the 
+$x$ variable is categorical (and $y$ is still continuous)
+* Learn how to run these models in R
+
+### Example
+
+Calcium is an essential mineral that regulates the heart, is important for blood clotting and for building healthy bones. The National Osteoporosis Foundation recommends a daily calcium intake of 1000-1200 mg/day for adult men and women. While calcium is contained in some foods, most adults do not get enough calcium in their diets and take supplements. Unfortunately some of the supplements have side effects such as gastric distress, making them difficult for some patients to take on a regular basis.  
+
+A study is designed to test whether there is a difference in mean daily calcium intake in adults with normal bone density, adults with osteopenia (a low bone density which may lead to osteoporosis) and adults with osteoporosis. Adults 60 years of age with normal bone density, osteopenia and osteoporosis are selected at random from hospital records and invited to participate in the study. Each participant's daily calcium intake is measured based on reported food intake and supplements.
+
+### The data
+
+```{r, echo=F, message=F, warning=FALSE}
+library(tidyverse)
+```
+
+
+```{r echo=FALSE}
+#students, don't worry about knowing the next lines of code. Just have a look at 
+#the dataset so you understand what variables it contains
+normal <- c(1200, 1000, 980, 900, 750, 800)
+osteopenia <- c(1000, 1100, 700, 800, 500, 700)
+osteoporosis <- c(890, 650, 1100, 900, 400, 350)
+
+calcium_data <- data.frame(calcium_intake = c(normal, osteopenia, osteoporosis), 
+           type = c(rep("normal", 6), rep("osteopenia", 6), 
+                    rep("osteoporosis", 6)),
+           type_num = c(rep(1, 6), rep(2, 6), rep(3, 6)))
+
+calcium_data
+
+```
+
+### Refresher on `lm()`
+
+* So far, we ran linear regression when both the outcome and explanatory 
+variables were continuous
+* We can also use linear regression when the outcome is continuous, but the 
+explanatory variable is categorical
+* In today's lecture we learn how to run and interpret these kinds of models
+
+
+### Running linear regression using a categorical explanatory variable
+
+The first thing you want to do is check how the categorical (or factor) variable is encoded,
+and change the order of the categorical variable if you need to:
+
+```{r}
+str(calcium_data)
+```
+
+* This shows us that `type` is encoded as "chr", which stands for character
+* This means it isn't yet stored as a factor variable
+* We want to have the variable as factors for including in the analysis
+
+### Making `type` a factor variable
+
+This code updated the variable `type` to be stored as a factor variable. We overwrote the original variable, but you might want to rename it `type2` within
+`mutate` so you can compare the new and old variables if you're doing this for your first time!
+
+```{r}
+calcium_data <- calcium_data %>% mutate(type = factor(type))
+str(calcium_data)
+```
+Now we can see that type is a factor variable with three levels. It is sorted alphabetically, which for our purposes is okay because we would like "normal", the first category, to be the **referent** group.
+
+**Referent group**: The group that the others will be compared to. Here, we will
+compare the osteopenia and osteoporosis groups to the normal group. Oftentimes,
+we set the referent group to be the level with the relatively best health outcome
+compared to the other groups, or the group with the largest sample size. 
+
+### Defining a new referent group
+
+If you wanted to change the referent group, you can use `fct_relevel()`, which
+we used in Part I of the course:
+
+```{r}
+
+#makes osteoporosis the referent level:
+calcium_data <- calcium_data %>% mutate(type_reordered = fct_relevel(type, "osteoporosis")) 
+
+levels(calcium_data$type_reordered)
+```
+
+* We will run two regressions, one with `type` as the explanatory variable and the other with `type_reordered` as the explanatory variable to see how their outputs differ.
+
+### Linear regression when $x$ is categorical
+
+Recall the form of the regression model when $x$ and $y$ are both continuous:
+
+$$y=mean(Y|X=x) = a + bx$$
+
+We can write this more precisely. The predicted value for individual $i$ is represented by:
+
+$$\hat{y}_i = \hat{a} + \hat{b}x_i$$
+
+Suppose you have a categorical variable with three levels. Then the new form of the regression model is:
+
+$$\hat{y}_i = \hat{a} + \hat{b}_1\times I_{type=osteopenia} + \hat{b}_2\times I_{type=osteoporosis}$$
+
+* The $I_{type=osteopenia}$ is called an indicator function or dummy variable
+
+* It has a value of one if the statement is true, and a value of zero otherwise
+
+$$
+I_{type=\text{<a type>}} =
+\begin{cases}
+1 \text{ if } x_i \text{ is of type <a type>} \\
+0 \text{ if } x_i \text{ is not of type <a type>}
+\end{cases}
+$$
+
+### Linear regression when $x$ is categorical
+
+General form of regression model for categorical $x$ variable with three levels:
+
+$$\hat{y}_i = \hat{a} + \hat{b}_1\times I_{type=osteopenia} + \hat{b}_2\times I_{type=osteoporosis}$$
+
+
+* When an individual is in the normal bone density category, then both `category == osteopenia` and `category == osteoporosis`
+are `FALSE`, so both indicator variables are zero, and the regression model simplifies to:
+
+$$\hat{y}_i = \hat{a}$$
+
+* When an individual is in the osteopenia bone density category, then `category == osteopenia` is `TRUE` and `category == osteoporosis`
+is `FALSE` and the regression model simplifies to:
+
+$$\hat{y}_i = \hat{a} + \hat{b}_1$$
+
+* When an individual is in the osteoporosis bone density category, then `category == osteopenia` is `FALSE` and `category == osteoporosis` is `TRUE` and the regression model simplifies to:
+
+$$\hat{y}_i = \hat{a} + \hat{b}_2$$
+
+Thus, when $x$ is categorical, the regression model predicts each individual's measure to be at the mean for that category.
+
+### Running `lm()` on categorical $x$ data
+
+```{r}
+library(broom)
+calcium_lm <- lm(calcium_intake ~ type, data = calcium_data)
+
+tidy(calcium_lm)
+```
+
+Interpretation of the output:
+
+* The intercept is equal to 938.33. This is the average calcium intake for a person with normal density.
+* The coefficient for "osteopenia" is equal to -138.33. This means that individuals with osteopenia had calcium intakes that are on average 138.33 lower than individuals with normal bone density.
+* The coefficient for "osteoporosis" is equal to -223.33. This means that individuals with osteoporosis had calcium intakes that are on average 223.33 lower than individuals with normal bone density.
+
+### Running lm() on categorical $x$ data
+
+The coefficient estimates based on the model agree with what we calculate by hand:
+
+```{r}
+calcium_data %>% 
+  group_by(type) %>% 
+  summarise(mean = mean(calcium_intake))
+```
+
+* Note that 800 is 138.33 lower than 938.33
+* Note that 715 is 223.33 lower that 938.33
+
+### Tests and p-values based on the linear model
+
+```{r}
+library(broom)
+calcium_lm <- lm(calcium_intake ~ type, data = calcium_data)
+
+tidy(calcium_lm)
+```
+
+* We can also interpret these p-values. What is the null hypothesis?
+* For the second row, the null hypothesis is that the regression coefficient for osteopenia is equal to 0. That is, the mean calcium intake for patients with osteopenia is equal to the mean for those with normal bone density. 
+* The p-value is 0.32, so we do not reject the null hypothesis. 
+
+### `predict` function to get 95% confidence intervals
+
+We can use R code to calculate the 95% confidence intervals for the means:
+
+```{r, warning=F}
+#make a tiny data frame storing the three categorical levels:
+newdata = data.frame(type=c("normal", "osteopenia", "osteoporosis"))
+
+#predict calcium intake for each row in newdata, i.e., for each level of the categorical variable:
+predictions <- data.frame(predict(calcium_lm, newdata, interval="confidence")) 
+
+#append another row to the data frame with the category labels:
+predictions$type <- c("normal", "osteopenia", "osteoporosis") 
+
+predictions
+```
+
+### Plot the observed data, the predicted means and their 95% CIs
+
+What does this remind you of? It looks like the plots we made when we did ANOVA!
+
+```{r}
+ggplot(data = calcium_data, aes(x = type, y = calcium_intake)) + geom_point() +
+  geom_point(data = predictions, aes(y = fit), col = "red") +
+  geom_segment(data = predictions, aes(y = lwr, yend = upr, xend = type), col = "red") + 
+  theme_minimal()
+```
+
+### Run the model again using the `type_reordered` as the exposure variable
+
+* Recall that `type_reordered` contains the same factor variable but with osteoporosis as the reference group
+
+```{r}
+levels(calcium_data$type_reordered)
+```
+
+* Write the regression equation for the model with `type_reordered` as the 
+`x` variable
+* Before running the linear model, how do you expect the regression output to
+change?
+
+### Regression equation
+
+$$\hat{y}_i = \hat{a} + \hat{b}_1\times I_{type=normal} + \hat{b}_2\times I_{type=osteopenia}$$
+
+
+* $a$ (the intercept) will be the average for patients with osteoporosis
+* $a + b_1$ will be the average for patients with normal bone density
+  - implying the $b_1$ will be the additional calcium intake for patients with normal bone density
+* $a + b_2$ will be the average for patients with osteopenia
+  - implying that $b_2$ will be the additional calcium intake for patients with osteopenia
+
+### The model
+
+```{r}
+calcium_lm2 <- lm(calcium_intake ~ type_reordered, data = calcium_data)
+
+tidy(calcium_lm2)
+```
+
+* Can you interpret the intercept and other coefficients in this model?
+* What is the average calcium intake for someone with osteopenia? Is it lower or 
+higher than someone with normal bone density? By how much?
+
+### Another model: Mistaking categorical data for continuous data
+
+* Recall that `type_num` is a numeric way of storing the categorical data stored
+in `type`
+
+```{r}
+str(calcium_data$type_num)
+```
+
+* What happens if we run the regression on `type_num`?
+
+### Another model: Mistaking categorical data for continuous data
+
+Run the regression on `type_num`:
+
+```{r}
+calcium_lm3 <- lm(calcium_intake ~ type_num, data = calcium_data)
+
+tidy(calcium_lm3)
+```
+
+* Notice that there is only one coefficient for `type_num`, but we were expecting
+two coefficients -- one for the two non-referent levels of type.
+* What happened?
+* Answer: R interpreted `type_num` as a continuous, not a categorical, variable.
+It estimated a regression slope term using $y = a + bx$, which is not what we 
+want. This linear model makes the assumption that the increase in calcium intake
+going from category 1 to 2 and from 2 to 3 is the same. Thus, this model is not 
+what we wanted to fit, and does not reflect the underlying data.
+* Lesson: make sure that you double check how your categorical variables are encoded!
+They should be stored as factors or else R will treat them as continuous variables.
+
+### Changing a variable type from continuous to categorical
+
+* If your factor variable was encoded numerically (like `type_num` in this example),
+R will interpret it as a continuous number and run simple linear regression on the underlying numbers. This is wrong, but can happen by mistake if you don't check.
+* In this case you need to change the storage type using `your_data %>% mutate(var_categorical = as.factor(var_numeric, levels = c(<<YOUR LEVELS>>), labels = c(<<YOUR LABELS>>)))`
+* In the code below, we update the storage type for `type_num` and store as a new categorical variable called `type_cat_ii`:
+
+```{r mutate-numeric-to-categorical}
+calcium_data <- calcium_data %>% 
+  mutate(type_cat_ii = factor(type_num, levels = c(1, 2, 3), 
+                              labels = c("normal", "osteopenia", "osteoporosis")))
+
+str(calcium_data)
+```
+
+### Re-run the model
+
+Re-run the model on `type_cat_ii`:
+
+```{r}
+calcium_lm4 <- lm(calcium_intake ~ type_cat_ii, data = calcium_data)
+
+tidy(calcium_lm4)
+```
+
+* This looks better (we have two coefficients)
+
+### Recap
+
+* We now know how to write linear models when $y$ is continuous and $x$ is either
+continuous or categorical
+* When $x$ is categorical we expect $k-1$ regression coefficients, where $k$ is the number of levels
+* The regression coefficients correspond to the average value of $y$ for
+each category, minus the intercept $a$
+* When we have categorical data, it is important to make sure `R` knows it is categorical (by using `str()`) and setting the appropriate referent group
+* Hypothesis tests as how much each group differs from the referent group
+
+### Future Statistics Classes
+
+* We've only dealt with one $x$ variable at a time. In future stat courses, you 
+will learn how to model multiple $x$ variables using multiple linear regression.
+* This is important for prediction models (to get the best prediction you include
+every $x$ variable that helps predict $y$)
+* This is also important for causal models
+* For these models, you are interested in the causal effect of a specific explanatory variable (e.g., $x_1$), but include other explanatory variables (e.g., $x_2$) to control for bias, such as confounding variables, and model interactions)
+
+### The End!
+
+* This lecture marks the end of the course material for PH 142
+* Next lecture we will review 
+* Congratulations on making it this far!
+
+```{r con1, fig.align='center', out.width="50%", echo=FALSE }
+knitr::include_graphics("./images/linear_regression.png")
+```
+https://xkcd.com/1725
